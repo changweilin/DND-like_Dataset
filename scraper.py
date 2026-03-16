@@ -46,176 +46,53 @@ try:
 except ImportError:
     _CLOUDSCRAPER_AVAILABLE = False
 
+try:
+    import yaml as _yaml
+    _YAML_AVAILABLE = True
+except ImportError:
+    _YAML_AVAILABLE = False
+
 # ---------------------------------------------------------------------------
-# CRAWL TARGETS
+# CONFIG FILE
 # ---------------------------------------------------------------------------
 
-CRAWL_TARGETS: dict[str, dict] = {
-    "trpg": {
-        "pathfinder": {
-            "urls": [
-                "https://pathfinderwiki.com/wiki/Golarion",
-                "https://pathfinderwiki.com/wiki/Pathfinder_Society",
-            ],
-            "extractor": "mediawiki",
-            "language": "en",
-            "display_name": "Pathfinder",
-            "tags": ["fantasy", "pathfinder"],
-        },
-        "warhammer_fantasy": {
-            "urls": [
-                "https://whfb.lexicanum.com/wiki/The_Empire",
-                "https://whfb.lexicanum.com/wiki/Chaos_(Warhammer)",
-            ],
-            "extractor": "lexicanum",
-            "language": "en",
-            "display_name": "Warhammer Fantasy",
-            "tags": ["dark_fantasy", "warhammer"],
-        },
-        "wh40k": {
-            "urls": [
-                "https://wh40k.lexicanum.com/wiki/Imperium_of_Man",
-                "https://wh40k.lexicanum.com/wiki/Chaos",
-            ],
-            "extractor": "lexicanum",
-            "language": "en",
-            "display_name": "Warhammer 40,000",
-            "tags": ["scifi", "grimdark", "warhammer40k"],
-        },
-        "shadowrun": {
-            "urls": [
-                "https://shadowrun.fandom.com/wiki/Sixth_World",
-                "https://shadowrun.fandom.com/wiki/Seattle_metroplex",
-            ],
-            "extractor": "fandom",
-            "language": "en",
-            "display_name": "Shadowrun",
-            "tags": ["cyberpunk", "fantasy", "shadowrun"],
-        },
-        "world_of_darkness": {
-            "urls": [
-                "https://whitewolf.fandom.com/wiki/World_of_Darkness",
-                "https://whitewolf.fandom.com/wiki/Vampire:_The_Masquerade",
-            ],
-            "extractor": "fandom",
-            "language": "en",
-            "display_name": "World of Darkness",
-            "tags": ["horror", "gothic", "world_of_darkness"],
-        },
-        "call_of_cthulhu": {
-            "urls": [
-                "https://lovecraft.fandom.com/wiki/Cthulhu_Mythos",
-                "https://lovecraft.fandom.com/wiki/Arkham",
-            ],
-            "extractor": "fandom",
-            "language": "en",
-            "display_name": "Call of Cthulhu",
-            "tags": ["horror", "cosmic", "lovecraft"],
-        },
-        "iron_kingdoms": {
-            "urls": [
-                "https://ironkingdoms.fandom.com/wiki/Iron_Kingdoms",
-                "https://ironkingdoms.fandom.com/wiki/Western_Immoren",
-            ],
-            "extractor": "fandom",
-            "language": "en",
-            "display_name": "Iron Kingdoms",
-            "tags": ["steampunk", "fantasy", "iron_kingdoms"],
-        },
-        "blades_in_the_dark": {
-            "urls": [
-                "https://bladesinthedark.com/doskvol",
-                "https://bladesinthedark.com/streets-doskvol",
-            ],
-            "extractor": "generic",
-            "language": "en",
-            "display_name": "Blades in the Dark",
-            "tags": ["steampunk", "heist", "blades_in_the_dark"],
-        },
-        "l5r": {
-            "urls": [
-                "https://l5r.fandom.com/wiki/Rokugan",
-                "https://l5r.fandom.com/wiki/Great_Clans",
-            ],
-            "extractor": "fandom",
-            "language": "en",
-            "display_name": "Legend of the Five Rings",
-            "tags": ["wuxia", "eastern_fantasy", "l5r"],
-        },
-        "deadlands": {
-            "urls": [
-                "https://peginc.com/savage-settings/deadlands/",
-            ],
-            "extractor": "generic",
-            "language": "en",
-            "display_name": "Deadlands",
-            "tags": ["western", "horror", "deadlands"],
-        },
-        "mutant_year_zero": {
-            "urls": [
-                "https://mutant.fandom.com/wiki/Mutant:_Year_Zero",
-            ],
-            "extractor": "fandom",
-            "language": "en",
-            "display_name": "Mutant: Year Zero",
-            "tags": ["post_apocalyptic", "scifi", "mutant"],
-        },
-        "gloomhaven": {
-            "urls": [
-                "https://gloomhaven.fandom.com/wiki/Gloomhaven",
-            ],
-            "extractor": "fandom",
-            "language": "en",
-            "display_name": "Gloomhaven",
-            "tags": ["dungeon_crawler", "fantasy", "gloomhaven"],
-        },
-    },
-    "webnovel": {
-        "ao3_fantasy": {
-            "urls": [],  # populated dynamically by sample_ao3()
-            "extractor": "ao3",
-            "language": "en",
-            "display_name": "Archive of Our Own",
-            "sample_strategy": "ao3",
-            "sample_tags": ["Fantasy", "Science Fiction"],
-            "sample_count": 30,
-            "tags": ["fanfic", "original", "fantasy", "en"],
-            "min_delay": 8.0,   # AO3 guidelines ask for respectful pacing
-            "max_delay": 15.0,
-        },
-        "royalroad_litrpg": {
-            "urls": [],  # populated dynamically by sample_royalroad()
-            "extractor": "royalroad",
-            "language": "en",
-            "display_name": "Royal Road",
-            "sample_strategy": "royalroad",
-            "sample_tags": ["litrpg"],
-            "sample_count": 20,
-            "tags": ["litrpg", "progression", "fantasy", "en"],
-            "min_delay": 5.0,   # behind Cloudflare; slower = fewer challenges
-            "max_delay": 10.0,
-        },
-        "syosetu_isekai": {
-            "urls": [],  # populated dynamically by sample_syosetu()
-            "extractor": "syosetu",
-            "language": "ja",
-            "display_name": "小説家になろう (Syosetu)",
-            "sample_strategy": "syosetu",
-            "sample_count": 15,
-            "tags": ["isekai", "fantasy", "ja"],
-        },
-        "lexicanum_wh": {
-            "urls": [
-                "https://whfb.lexicanum.com/wiki/The_Empire",
-                "https://wh40k.lexicanum.com/wiki/Imperium_of_Man",
-            ],
-            "extractor": "lexicanum",
-            "language": "en",
-            "display_name": "Lexicanum (Warhammer)",
-            "tags": ["warhammer", "lore", "en"],
-        },
-    },
-}
+CONFIG_PATH = pathlib.Path("scraper_config.yaml")
+
+# Populated at startup by load_config() called from main().
+# Contains the full parsed YAML dict.
+_CFG: dict = {}
+
+# Populated from _CFG["sources"] by main(); consumed by run_category() etc.
+CRAWL_TARGETS: dict[str, dict] = {}
+
+
+def load_config(path: pathlib.Path = CONFIG_PATH) -> dict:
+    """Load scraper_config.yaml and return the full config dict.
+
+    Exits with a helpful error if pyyaml is not installed or the file is
+    missing.  Call this once at startup from main().
+    """
+    if not _YAML_AVAILABLE:
+        print(
+            "ERROR: pyyaml is required to read scraper_config.yaml.\n"
+            "       Run:  pip install pyyaml",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if not path.exists():
+        print(
+            f"ERROR: Config file not found: {path}\n"
+            f"       Expected a scraper_config.yaml in the current directory.\n"
+            f"       You can copy the default from the repository root.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return _yaml.safe_load(fh) or {}
+    except Exception as exc:
+        print(f"ERROR: Failed to parse {path}: {exc}", file=sys.stderr)
+        sys.exit(1)
 
 # ---------------------------------------------------------------------------
 # HTTP HEADERS (reused from crawl_world_lore.py — proven effective)
@@ -377,9 +254,10 @@ def build_session(use_cloudscraper: bool = True) -> requests.Session:
     # Overlay UA profile on top of base headers
     session.headers.update({**_HEADERS, **ua_profile})
 
+    _http = _CFG.get("http", {})
     retry = Retry(
-        total=3,
-        backoff_factor=1,
+        total=_http.get("retry_total", 3),
+        backoff_factor=_http.get("backoff_factor", 1),
         status_forcelist=[429, 500, 502, 503, 504],
         allowed_methods=["GET"],
     )
@@ -471,7 +349,8 @@ def fetch_page(
         req_headers["If-Modified-Since"] = last_modified
 
     try:
-        resp = session.get(url, timeout=15, headers=req_headers)
+        _timeout = _CFG.get("http", {}).get("timeout", 15)
+        resp = session.get(url, timeout=_timeout, headers=req_headers)
 
         # 304 Not Modified — content unchanged since last visit
         if resp.status_code == 304:
@@ -1086,10 +965,11 @@ def _process_url(
 
     extractor_name = config.get("extractor", "generic")
 
+    _http = _CFG.get("http", {})
     domain_polite_delay(
         url,
-        min_s=config.get("min_delay", 3.0),
-        max_s=config.get("max_delay", 6.0),
+        min_s=config.get("min_delay", _http.get("min_delay", 3.0)),
+        max_s=config.get("max_delay", _http.get("max_delay", 6.0)),
     )
     text, status, cache_hdrs, checksum = scrape_url(
         session, url, extractor_name, respect_robots, cond_etag, cond_lm
@@ -1270,6 +1150,10 @@ def main() -> None:
         description="Scrape TRPG wikis and web novel platforms for LLM training data."
     )
     parser.add_argument(
+        "--config", type=pathlib.Path, default=CONFIG_PATH, metavar="FILE",
+        help=f"Path to scraper_config.yaml (default: {CONFIG_PATH}).",
+    )
+    parser.add_argument(
         "--category", choices=["trpg", "webnovel"],
         help="Limit to one category."
     )
@@ -1308,7 +1192,24 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    session = build_session()
+    # --- Load config and apply to module-level globals ---
+    global _CFG, CRAWL_TARGETS, STATE_PATH, COOKIES_PATH
+    _CFG = load_config(args.config)
+    CRAWL_TARGETS = _CFG.get("sources", {})
+    _paths = _CFG.get("paths", {})
+    if "state_path" in _paths:
+        STATE_PATH = pathlib.Path(_paths["state_path"])
+    if "cookies_path" in _paths:
+        COOKIES_PATH = pathlib.Path(_paths["cookies_path"])
+
+    log.info(
+        f"Config loaded from {args.config} | "
+        f"categories={list(CRAWL_TARGETS)} | "
+        f"sources={sum(len(v) for v in CRAWL_TARGETS.values())}"
+    )
+
+    _http = _CFG.get("http", {})
+    session = build_session(use_cloudscraper=_http.get("use_cloudscraper", True))
     state = load_state()
     respect_robots = not args.no_robots
     sources_filter = args.sources
