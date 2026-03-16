@@ -30,6 +30,7 @@ schedule:
   update_check: true   # always run --update-check in scheduled mode
   interleave: true     # always run --interleave in scheduled mode
   respect_robots: true # honour robots.txt in scheduled mode
+  auto_build: false    # set to true to auto-run build_dataset.py after each scrape
 
 # ---------------------------------------------------------------------------
 # Crawl sources
@@ -199,3 +200,44 @@ sources:
       urls:
         - https://whfb.lexicanum.com/wiki/The_Empire
         - https://wh40k.lexicanum.com/wiki/Imperium_of_Man
+
+    kakuyomu:
+      display_name: "カクヨム (Kakuyomu)"
+      extractor: kakuyomu
+      language: ja
+      tags: [isekai, fantasy, ja]
+      sample_strategy: kakuyomu
+      sample_count: 15
+      min_delay: 5.0
+      max_delay: 10.0
+      urls: []          # populated dynamically by sample_kakuyomu()
+
+    narou_fantasy:
+      display_name: "小説家になろう（ファンタジー）"
+      extractor: syosetu
+      language: ja
+      tags: [fantasy, ja]
+      sample_strategy: syosetu
+      sample_count: 15
+      urls: []          # populated dynamically (genre_code=101 = 異世界転生)
+
+  # ---------- ADDITIONAL TRPG SOURCES ----------
+  trpg_extra:
+
+    forgotten_realms:
+      display_name: "Forgotten Realms Wiki"
+      extractor: fandom
+      language: en
+      tags: [fantasy, dnd, forgotten_realms]
+      urls:
+        - https://forgottenrealms.fandom.com/wiki/Faer%C3%BBn
+        - https://forgottenrealms.fandom.com/wiki/Baldur%27s_Gate
+
+    dark_souls:
+      display_name: "Dark Souls Wiki"
+      extractor: fandom
+      language: en
+      tags: [dark_fantasy, soulslike, dark_souls]
+      urls:
+        - https://darksouls.fandom.com/wiki/Dark_Souls
+        - https://darksouls.fandom.com/wiki/Lordran

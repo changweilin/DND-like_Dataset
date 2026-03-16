@@ -92,6 +92,19 @@ def run_scraper(cmd: list[str], dry_run: bool) -> int:
     return result.returncode
 
 
+def run_build(dry_run: bool) -> int:
+    """Execute build_dataset.py after a scrape run. Returns the exit code."""
+    if dry_run:
+        log.info("(scheduler --dry-run: skipping build_dataset.py)")
+        return 0
+    cmd = [sys.executable, "build_dataset.py"]
+    log.info(f"auto_build: Running: {' '.join(cmd)}")
+    result = subprocess.run(cmd)
+    if result.returncode != 0:
+        log.warning(f"build_dataset.py exited with code {result.returncode}")
+    return result.returncode
+
+
 def _fmt_next(dt: datetime.datetime) -> str:
     delta = dt - datetime.datetime.now()
     h, rem = divmod(int(delta.total_seconds()), 3600)
@@ -137,16 +150,20 @@ def main() -> None:
     interval_s = interval_hours * 3600
     cmd = build_scraper_cmd(sched_cfg, args.config, dry_run=args.dry_run)
 
+    auto_build = sched_cfg.get("auto_build", False)
     log.info(
         f"Scheduler started | interval={interval_hours:.1f}h | "
         f"update_check={sched_cfg.get('update_check', True)} | "
-        f"interleave={sched_cfg.get('interleave', True)}"
+        f"interleave={sched_cfg.get('interleave', True)} | "
+        f"auto_build={auto_build}"
     )
     log.info(f"Scraper command: {' '.join(cmd)}")
 
     # ---- Run immediately if requested ----
     if args.run_now or args.once:
         run_scraper(cmd, dry_run=args.dry_run)
+        if auto_build:
+            run_build(dry_run=args.dry_run)
         if args.once:
             log.info("--once: exiting after single run.")
             return
@@ -163,6 +180,8 @@ def main() -> None:
 
         log.info("Scheduled run starting…")
         run_scraper(cmd, dry_run=args.dry_run)
+        if auto_build:
+            run_build(dry_run=args.dry_run)
 
 
 if __name__ == "__main__":

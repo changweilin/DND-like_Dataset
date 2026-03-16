@@ -554,6 +554,23 @@ def extract_generic(soup: BeautifulSoup) -> str:
     return "\n\n".join(parts)
 
 
+def extract_kakuyomu(soup: BeautifulSoup) -> str:
+    """Extract episode text from カクヨム (Kakuyomu) pages."""
+    content = soup.find("section", class_=re.compile(r"widget-episodeBody"))
+    if not content:
+        # Fallback: newer layout may use a different container
+        content = soup.find("div", class_=re.compile(r"episode-body|novelBody"))
+    if not content:
+        return extract_generic(soup)
+
+    parts = []
+    for el in content.find_all("p"):
+        text = el.get_text(separator=" ", strip=True)
+        if text:
+            parts.append(text)
+    return "\n\n".join(parts)
+
+
 EXTRACTOR_MAP: dict[str, Callable[[BeautifulSoup], str]] = {
     "fandom": extract_fandom,
     "mediawiki": extract_mediawiki,
@@ -561,6 +578,7 @@ EXTRACTOR_MAP: dict[str, Callable[[BeautifulSoup], str]] = {
     "ao3": extract_ao3,
     "royalroad": extract_royalroad,
     "syosetu": extract_syosetu,
+    "kakuyomu": extract_kakuyomu,
     "generic": extract_generic,
 }
 

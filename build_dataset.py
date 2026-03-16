@@ -498,8 +498,15 @@ def build_records_from_source(
     source: dict,
     dataset_type: str,
     min_words: int,
+    global_seen: Optional[set] = None,
 ) -> list[dict]:
-    """Process one raw source file into a list of JSONL records."""
+    """Process one raw source file into a list of JSONL records.
+
+    global_seen: shared set of MD5 hashes across all sources for cross-source
+    exact deduplication. Pass the same set instance when processing multiple
+    sources to avoid identical chunks appearing more than once in the JSONL.
+    Within-source near-duplicate removal (Jaccard) still runs first.
+    """
     text = source["text"]
     metadata = source["metadata"]
     language = metadata.get("language", "en")
@@ -510,7 +517,18 @@ def build_records_from_source(
 
     chunks = split_into_chunks(text, min_words=min_words, max_words=500)
     chunks = [c for c in chunks if is_quality_chunk(c, language)]
+    # Within-source near-duplicate removal (Jaccard similarity)
     chunks = deduplicate_chunks(chunks)
+
+    # Cross-source exact deduplication via MD5 hash
+    if global_seen is not None:
+        deduped = []
+        for chunk in chunks:
+            h = hashlib.md5(chunk.strip().encode()).hexdigest()
+            if h not in global_seen:
+                global_seen.add(h)
+                deduped.append(chunk)
+        chunks = deduped
 
     records = []
     prev_chunk: Optional[str] = None
@@ -586,10 +604,14 @@ def main() -> None:
     rpg_records: list[dict] = []
     literature_records: list[dict] = []
 
+    # Shared set for cross-source exact deduplication (MD5 hashes)
+    rpg_global_seen: set = set()
+    lit_global_seen: set = set()
+
     if "rpg" in datasets_to_build:
         log.info(f"Building RPG dataset from {len(trpg_sources)} TRPG sources...")
         for source in trpg_sources:
-            records = build_records_from_source(source, "rpg", args.min_words)
+            records = build_records_from_source(source, "rpg", args.min_words, rpg_global_seen)
             rpg_records.extend(records)
             log.info(
                 f"  {source['metadata'].get('source_id','')} "
@@ -600,7 +622,7 @@ def main() -> None:
     if "literature" in datasets_to_build:
         log.info(f"Building literature dataset from {len(webnovel_sources)} webnovel sources...")
         for source in webnovel_sources:
-            records = build_records_from_source(source, "literature", args.min_words)
+            records = build_records_from_source(source, "literature", args.min_words, lit_global_seen)
             literature_records.extend(records)
             log.info(
                 f"  {source['metadata'].get('source_id','')} "
