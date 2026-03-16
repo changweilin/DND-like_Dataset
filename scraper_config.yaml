@@ -7,8 +7,8 @@
 # Global HTTP settings
 # ---------------------------------------------------------------------------
 http:
-  min_delay: 3.0       # minimum seconds between requests to the same domain
-  max_delay: 6.0       # random upper bound (prevents regular timing fingerprints)
+  min_delay: 2.0       # minimum seconds between requests to the same domain
+  max_delay: 5.0       # random upper bound (prevents regular timing fingerprints)
   timeout: 15          # request timeout in seconds
   retry_total: 3       # retries on 429/5xx
   backoff_factor: 1    # exponential backoff between retries (1s, 2s, 4s)
@@ -34,17 +34,6 @@ schedule:
 
 # ---------------------------------------------------------------------------
 # Crawl sources
-# Structure per source:
-#   display_name: human-readable label
-#   extractor:    fandom | mediawiki | lexicanum | ao3 | royalroad | syosetu | generic
-#   language:     en | ja
-#   tags:         list of strings used in dataset metadata
-#   urls:         list of URLs to scrape (leave empty [] for sampled sources)
-#   min_delay:    (optional) override global http.min_delay for this source
-#   max_delay:    (optional) override global http.max_delay for this source
-#   sample_strategy: ao3 | royalroad | syosetu  (for dynamically sampled sources)
-#   sample_tags:  tags passed to the sampler
-#   sample_count: how many works to sample
 # ---------------------------------------------------------------------------
 sources:
 
@@ -55,19 +44,33 @@ sources:
       display_name: "Pathfinder Wiki"
       extractor: mediawiki
       language: en
-      tags: [fantasy, pathfinder]
+      tags: [fantasy, pathfinder, pathfinder_2e]
       urls:
         - https://pathfinderwiki.com/wiki/Golarion
         - https://pathfinderwiki.com/wiki/Pathfinder_Society
+        - https://pathfinderwiki.com/wiki/Absalom
+        - https://pathfinderwiki.com/wiki/Cheliax
+        - https://pathfinderwiki.com/wiki/Desna
+        - https://pathfinderwiki.com/wiki/Sarenrae
+        - https://pathfinderwiki.com/wiki/Pharasma
+        - https://pathfinderwiki.com/wiki/Varisia
+        - https://pathfinderwiki.com/wiki/Lost_Omens
 
     warhammer_fantasy:
       display_name: "Warhammer Fantasy (Lexicanum)"
       extractor: lexicanum
       language: en
-      tags: [dark_fantasy, warhammer]
+      tags: [dark_fantasy, warhammer, whfb]
       urls:
         - https://whfb.lexicanum.com/wiki/The_Empire
         - https://whfb.lexicanum.com/wiki/Chaos_(Warhammer)
+        - https://whfb.lexicanum.com/wiki/Bretonnia
+        - https://whfb.lexicanum.com/wiki/Dwarfs
+        - https://whfb.lexicanum.com/wiki/High_Elves
+        - https://whfb.lexicanum.com/wiki/Sigmar
+        - https://whfb.lexicanum.com/wiki/Vampire_Counts
+        - https://whfb.lexicanum.com/wiki/Skaven
+        - https://whfb.lexicanum.com/wiki/Old_World
 
     wh40k:
       display_name: "Warhammer 40,000 (Lexicanum)"
@@ -77,6 +80,13 @@ sources:
       urls:
         - https://wh40k.lexicanum.com/wiki/Imperium_of_Man
         - https://wh40k.lexicanum.com/wiki/Chaos
+        - https://wh40k.lexicanum.com/wiki/Eldar
+        - https://wh40k.lexicanum.com/wiki/Orks
+        - https://wh40k.lexicanum.com/wiki/Tyranids
+        - https://wh40k.lexicanum.com/wiki/Space_Marines
+        - https://wh40k.lexicanum.com/wiki/Emperor_of_Mankind
+        - https://wh40k.lexicanum.com/wiki/Horus_Heresy
+        - https://wh40k.lexicanum.com/wiki/Necrons
 
     shadowrun:
       display_name: "Shadowrun Wiki"
@@ -86,6 +96,10 @@ sources:
       urls:
         - https://shadowrun.fandom.com/wiki/Sixth_World
         - https://shadowrun.fandom.com/wiki/Seattle_metroplex
+        - https://shadowrun.fandom.com/wiki/Magic
+        - https://shadowrun.fandom.com/wiki/Matrix
+        - https://shadowrun.fandom.com/wiki/Great_Dragons
+        - https://shadowrun.fandom.com/wiki/Metahumanity
 
     world_of_darkness:
       display_name: "World of Darkness"
@@ -95,6 +109,10 @@ sources:
       urls:
         - https://whitewolf.fandom.com/wiki/World_of_Darkness
         - https://whitewolf.fandom.com/wiki/Vampire:_The_Masquerade
+        - https://whitewolf.fandom.com/wiki/Werewolf:_The_Apocalypse
+        - https://whitewolf.fandom.com/wiki/Mage:_The_Ascension
+        - https://whitewolf.fandom.com/wiki/Kindred
+        - https://whitewolf.fandom.com/wiki/Caine
 
     call_of_cthulhu:
       display_name: "Call of Cthulhu / Lovecraft"
@@ -104,57 +122,72 @@ sources:
       urls:
         - https://lovecraft.fandom.com/wiki/Cthulhu_Mythos
         - https://lovecraft.fandom.com/wiki/Arkham
+        - https://lovecraft.fandom.com/wiki/Necronomicon
+        - https://lovecraft.fandom.com/wiki/Great_Old_One
+        - https://lovecraft.fandom.com/wiki/Yog-Sothoth
+        - https://lovecraft.fandom.com/wiki/Hastur
 
-    iron_kingdoms:
-      display_name: "Iron Kingdoms"
+    forgotten_realms:
+      display_name: "Forgotten Realms Wiki"
       extractor: fandom
       language: en
-      tags: [steampunk, fantasy, iron_kingdoms]
+      tags: [fantasy, dnd, forgotten_realms]
       urls:
-        - https://ironkingdoms.fandom.com/wiki/Iron_Kingdoms
-        - https://ironkingdoms.fandom.com/wiki/Western_Immoren
+        - https://forgottenrealms.fandom.com/wiki/Faer%C3%BBn
+        - https://forgottenrealms.fandom.com/wiki/Baldur%27s_Gate
+        - https://forgottenrealms.fandom.com/wiki/Waterdeep
+        - https://forgottenrealms.fandom.com/wiki/Neverwinter
+        - https://forgottenrealms.fandom.com/wiki/Drizzt_Do%27Urden
+        - https://forgottenrealms.fandom.com/wiki/Mystra
+        - https://forgottenrealms.fandom.com/wiki/D&D_Lore
 
-    blades_in_the_dark:
-      display_name: "Blades in the Dark"
-      extractor: generic
-      language: en
-      tags: [steampunk, heist, blades_in_the_dark]
-      urls:
-        - https://bladesinthedark.com/doskvol
-        - https://bladesinthedark.com/streets-doskvol
-
-    l5r:
-      display_name: "Legend of the Five Rings"
+    eberron:
+      display_name: "Eberron Wiki"
       extractor: fandom
       language: en
-      tags: [wuxia, eastern_fantasy, l5r]
+      tags: [fantasy, steampunk, eberron, dnd]
       urls:
-        - https://l5r.fandom.com/wiki/Rokugan
-        - https://l5r.fandom.com/wiki/Great_Clans
+        - https://eberron.fandom.com/wiki/Eberron
+        - https://eberron.fandom.com/wiki/Sharn
+        - https://eberron.fandom.com/wiki/Khorvaire
+        - https://eberron.fandom.com/wiki/Warforged
+        - https://eberron.fandom.com/wiki/Dragonmarks
+        - https://eberron.fandom.com/wiki/The_Last_War
 
-    deadlands:
-      display_name: "Deadlands"
-      extractor: generic
-      language: en
-      tags: [western, horror, deadlands]
-      urls:
-        - https://peginc.com/savage-settings/deadlands/
-
-    mutant_year_zero:
-      display_name: "Mutant: Year Zero"
+    dragonlance:
+      display_name: "Dragonlance Wiki"
       extractor: fandom
       language: en
-      tags: [post_apocalyptic, scifi, mutant]
+      tags: [fantasy, dragonlance, dnd]
       urls:
-        - https://mutant.fandom.com/wiki/Mutant:_Year_Zero
+        - https://dragonlance.fandom.com/wiki/Krynn
+        - https://dragonlance.fandom.com/wiki/Ansalon
+        - https://dragonlance.fandom.com/wiki/War_of_the_Lance
+        - https://dragonlance.fandom.com/wiki/Raistlin_Majere
+        - https://dragonlance.fandom.com/wiki/Solamnic_Knights
 
-    gloomhaven:
-      display_name: "Gloomhaven"
+    gurps:
+      display_name: "GURPS Wiki"
       extractor: fandom
       language: en
-      tags: [dungeon_crawler, fantasy, gloomhaven]
+      tags: [ttrpg, system_agnostic, gurps]
       urls:
-        - https://gloomhaven.fandom.com/wiki/Gloomhaven
+        - https://gurps.fandom.com/wiki/GURPS_Basic_Set
+        - https://gurps.fandom.com/wiki/Infinite_Worlds
+        - https://gurps.fandom.com/wiki/Magic_System
+        - https://gurps.fandom.com/wiki/Combat_System
+
+    starfinder:
+      display_name: "Starfinder Wiki"
+      extractor: mediawiki
+      language: en
+      tags: [scifi, fantasy, starfinder]
+      urls:
+        - https://starfinderwiki.com/wiki/Starfinder_Roleplaying_Game
+        - https://starfinderwiki.com/wiki/Absalom_Station
+        - https://starfinderwiki.com/wiki/Pact_Worlds
+        - https://starfinderwiki.com/wiki/Drift
+        - https://starfinderwiki.com/wiki/Shirren
 
   # ---------- WEBNOVEL CATEGORY ----------
   webnovel:
@@ -165,11 +198,11 @@ sources:
       language: en
       tags: [fanfic, original, fantasy, en]
       sample_strategy: ao3
-      sample_tags: [Fantasy, "Science Fiction"]
-      sample_count: 30
-      min_delay: 8.0    # AO3 guidelines ask for respectful pacing
+      sample_tags: [Fantasy]
+      sample_count: 50
+      min_delay: 8.0
       max_delay: 15.0
-      urls: []          # populated dynamically by sample_ao3()
+      urls: []
 
     royalroad_litrpg:
       display_name: "Royal Road"
@@ -178,10 +211,10 @@ sources:
       tags: [litrpg, progression, fantasy, en]
       sample_strategy: royalroad
       sample_tags: [litrpg]
-      sample_count: 20
-      min_delay: 5.0    # behind Cloudflare; slower = fewer challenges
+      sample_count: 30
+      min_delay: 5.0
       max_delay: 10.0
-      urls: []          # populated dynamically by sample_royalroad()
+      urls: []
 
     syosetu_isekai:
       display_name: "小説家になろう (Syosetu)"
@@ -189,55 +222,219 @@ sources:
       language: ja
       tags: [isekai, fantasy, ja]
       sample_strategy: syosetu
-      sample_count: 15
-      urls: []          # populated dynamically by sample_syosetu()
+      sample_count: 20
+      urls: []
 
-    lexicanum_wh:
-      display_name: "Lexicanum (Warhammer)"
-      extractor: lexicanum
-      language: en
-      tags: [warhammer, lore, en]
-      urls:
-        - https://whfb.lexicanum.com/wiki/The_Empire
-        - https://wh40k.lexicanum.com/wiki/Imperium_of_Man
-
-    kakuyomu:
+    kakuyomu_isekai:
       display_name: "カクヨム (Kakuyomu)"
       extractor: kakuyomu
       language: ja
       tags: [isekai, fantasy, ja]
       sample_strategy: kakuyomu
-      sample_count: 15
+      sample_count: 20
       min_delay: 5.0
       max_delay: 10.0
-      urls: []          # populated dynamically by sample_kakuyomu()
+      urls: []
 
-    narou_fantasy:
-      display_name: "小説家になろう（ファンタジー）"
-      extractor: syosetu
+    hameln_fanfic:
+      display_name: "ハーメルン (Hameln)"
+      extractor: syosetu  # Hameln uses similar structure to Syosetu
       language: ja
-      tags: [fantasy, ja]
-      sample_strategy: syosetu
-      sample_count: 15
-      urls: []          # populated dynamically (genre_code=101 = 異世界転生)
+      tags: [fanfic, isekai, ja]
+      sample_strategy: hameln
+      sample_count: 20
+      min_delay: 5.0
+      max_delay: 10.0
+      urls: []
 
-  # ---------- ADDITIONAL TRPG SOURCES ----------
-  trpg_extra:
+    ao3_zh_fantasy:
+      display_name: "Archive of Our Own (ZH)"
+      extractor: ao3
+      language: zh
+      tags: [fanfic, fantasy, zh]
+      sample_strategy: ao3
+      sample_tags: [Fantasy]
+      language_id: 27
+      sample_count: 20
+      urls: []
 
-    forgotten_realms:
-      display_name: "Forgotten Realms Wiki"
+    ao3_es_fantasy:
+      display_name: "Archive of Our Own (ES)"
+      extractor: ao3
+      language: es
+      tags: [fanfic, fantasy, es]
+      sample_strategy: ao3
+      sample_tags: [Fantasía]
+      language_id: 5
+      sample_count: 20
+      urls: []
+
+  # ---------- FAN CREATIONS & HOMEBREW ----------
+  fan_creation:
+
+    scp_foundation:
+      display_name: "SCP Foundation"
+      extractor: generic
+      language: en
+      tags: [urban_fantasy, horror, sci_fi, collaborative]
+      urls:
+        - https://scp-wiki.wikidot.com/scp-173
+        - https://scp-wiki.wikidot.com/scp-087
+        - https://scp-wiki.wikidot.com/scp-682
+        - https://scp-wiki.wikidot.com/scp-093
+        - https://scp-wiki.wikidot.com/scp-3000
+        - https://scp-wiki.wikidot.com/system:page-tags/tag/lore
+
+    dnd_wiki_homebrew:
+      display_name: "D&D Wiki (Homebrew)"
+      extractor: mediawiki
+      language: en
+      tags: [fantasy, dnd, homebrew]
+      urls:
+        - https://www.dandwiki.com/wiki/5e_Homebrew
+        - https://www.dandwiki.com/wiki/5e_Creatures
+        - https://www.dandwiki.com/wiki/5e_Deities
+        - https://www.dandwiki.com/wiki/5e_NPCs
+
+    sly_flourish:
+      display_name: "Sly Flourish (The Lazy DM)"
+      extractor: generic
+      language: en
+      tags: [ttrpg, dm_advice, lore, dnd]
+      urls:
+        - https://slyflourish.com/index.html
+        - https://slyflourish.com/lazy_dm_resource_document.html
+        - https://slyflourish.com/the_infinite_staircase.html
+
+    the_alexandrian:
+      display_name: "The Alexandrian"
+      extractor: generic
+      language: en
+      tags: [ttrpg, analysis, lore, worldbuilding]
+      urls:
+        - https://thealexandrian.net/wordpress/43568/roleplaying-games/game-structures-addendum-how-to-prep-a-dungeon
+        - https://thealexandrian.net/wordpress/37903/roleplaying-games/advanced-node-based-design
+        - https://thealexandrian.net/wordpress/41243/roleplaying-games/between-the-stars-part-1-the-pacte-dallia
+
+  # ---------- MULTILINGUAL LORE (NON-ENGLISH) ----------
+  multilingual_lore:
+
+    moegirl_pedia:
+      display_name: "萌娘百科 (Moegirlpedia)"
+      extractor: mediawiki
+      language: zh
+      tags: [anime, manga, game, zh]
+      urls:
+        - https://zh.moegirl.org.cn/%E5%8E%9F%E7%A5%9E  # Genshin Impact
+        - https://zh.moegirl.org.cn/%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F  # Arknights
+        - https://zh.moegirl.org.cn/%E6%98%9F%E9%穹%E9%81%93%E9%93%81  # Honkai Star Rail
+        - https://zh.moegirl.org.cn/%E5%9C%A3%E6%9D%AF%E6%88%98%E4%BA%89  # Holy Grail War
+
+    one_piece_cn:
+      display_name: "航海王维基 (One Piece CN)"
+      extractor: fandom
+      language: zh
+      tags: [anime, adventure, shonen, zh]
+      urls:
+        - https://onepiece.fandom.com/zh/wiki/%E8%B7%AF%E9%A3%9E
+        - https://onepiece.fandom.com/zh/wiki/%E6%81%B6%E9%AD%94%E6%9E%9C%E5%AE%9E
+
+    harry_potter_es:
+      display_name: "Harry Potter Wiki (ES)"
+      extractor: fandom
+      language: es
+      tags: [fantasy, magic, novel, es]
+      urls:
+        - https://harrypotter.fandom.com/es/wiki/Hogwarts
+        - https://harrypotter.fandom.com/es/wiki/Magia
+        - https://harrypotter.fandom.com/es/wiki/Voldemort
+
+    dragon_ball_es:
+      display_name: "Dragon Ball Wiki (ES)"
+      extractor: fandom
+      language: es
+      tags: [anime, action, dragon_ball, es]
+      urls:
+        - https://dragonball.fandom.com/es/wiki/Goku
+        - https://dragonball.fandom.com/es/wiki/Saiyan
+        - https://dragonball.fandom.com/es/wiki/Transformaciones
+
+    star_wars_fr:
+      display_name: "Star Wars HoloNet (FR)"
+      extractor: fandom
+      language: fr
+      tags: [scifi, space_opera, star_wars, fr]
+      urls:
+        - https://starwars.fandom.com/fr/wiki/La_Force
+        - https://starwars.fandom.com/fr/wiki/Jedi
+        - https://starwars.fandom.com/fr/wiki/Sabre_laser
+
+    marvel_es:
+      display_name: "Marvel Wiki (ES)"
+      extractor: fandom
+      language: es
+      tags: [comics, superheroes, marvel, es]
+      urls:
+        - https://marvel.fandom.com/es/wiki/UCM
+        - https://marvel.fandom.com/es/wiki/Vengadores
+        - https://marvel.fandom.com/es/wiki/Spider-Man
+
+    bilibili_wiki_genshin:
+      display_name: "Bilibili Wiki (Genshin)"
+      extractor: generic
+      language: zh
+      tags: [game, fantasy, zh]
+      urls:
+        - https://wiki.biligame.com/ys/%E4%B8%96%E7%95%8C%E8%A7%82
+        - https://wiki.biligame.com/ys/%E8%92%99%E5%BE%B7
+        - https://wiki.biligame.com/ys/%E7%92%83%E6%9C%88
+
+  # ---------- ADDITIONAL LORE SOURCES ----------
+  extra_lore:
+
+    critical_role:
+      display_name: "Critical Role (Exandria)"
       extractor: fandom
       language: en
-      tags: [fantasy, dnd, forgotten_realms]
+      tags: [fantasy, critical_role, exandria]
       urls:
-        - https://forgottenrealms.fandom.com/wiki/Faer%C3%BBn
-        - https://forgottenrealms.fandom.com/wiki/Baldur%27s_Gate
+        - https://criticalrole.fandom.com/wiki/Exandria
+        - https://criticalrole.fandom.com/wiki/Wildemount
+        - https://criticalrole.fandom.com/wiki/Tal%27Dorei
+        - https://criticalrole.fandom.com/wiki/The_Calamity
+        - https://criticalrole.fandom.com/wiki/Vox_Machina
+        - https://criticalrole.fandom.com/wiki/Mighty_Nein
 
-    dark_souls:
-      display_name: "Dark Souls Wiki"
+    elder_scrolls:
+      display_name: "Elder Scrolls Wiki"
       extractor: fandom
       language: en
-      tags: [dark_fantasy, soulslike, dark_souls]
+      tags: [fantasy, elder_scrolls, tamriel]
       urls:
-        - https://darksouls.fandom.com/wiki/Dark_Souls
-        - https://darksouls.fandom.com/wiki/Lordran
+        - https://elderscrolls.fandom.com/wiki/Tamriel
+        - https://elderscrolls.fandom.com/wiki/Cyrodiil
+        - https://elderscrolls.fandom.com/wiki/Skyrim
+        - https://elderscrolls.fandom.com/wiki/Lore
+        - https://elderscrolls.fandom.com/wiki/Daedric_Princes
+
+    witcher:
+      display_name: "The Witcher Wiki"
+      extractor: fandom
+      language: en
+      tags: [dark_fantasy, witcher]
+      urls:
+        - https://witcher.fandom.com/wiki/The_Continent
+        - https://witcher.fandom.com/wiki/Geralt_of_Rivia
+        - https://witcher.fandom.com/wiki/Witcher_lore
+        - https://witcher.fandom.com/wiki/Monsters
+
+    cyberpunk:
+      display_name: "Cyberpunk Wiki"
+      extractor: fandom
+      language: en
+      tags: [cyberpunk, scifi]
+      urls:
+        - https://cyberpunk.fandom.com/wiki/Night_City
+        - https://cyberpunk.fandom.com/wiki/Cyberpunk_2020
+        - https://cyberpunk.fandom.com/wiki/Timeline
+        - https://cyberpunk.fandom.com/wiki/Arasaka

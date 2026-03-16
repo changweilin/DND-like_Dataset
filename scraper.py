@@ -622,6 +622,8 @@ def sample_ao3(
     session: requests.Session,
     tags: list[str],
     count: int,
+    respect_robots: bool = True,
+    language_id: int = 1,
 ) -> list[str]:
     """Sample top-kudos complete English works from AO3. Returns chapter URLs."""
     urls = []
@@ -633,11 +635,11 @@ def sample_ao3(
             f"?tag={tag_param}"
             f"&work_search[sort_column]=kudos"
             f"&work_search[complete]=T"
-            f"&work_search[language_id]=1"
+            f"&work_search[language_id]={language_id}"
             f"&page={page}"
         )
         log.info(f"SAMPLE  AO3 listing page {page}")
-        html, status, _ = fetch_page(session, listing_url)
+        html, status, _ = fetch_page(session, listing_url, respect_robots)
         if not html:
             break
 
@@ -651,7 +653,7 @@ def sample_ao3(
                 break
             work_url = "https://archiveofourown.org" + link["href"]
             # Fetch just the first chapter
-            work_html, _ = fetch_page(session, work_url)
+            work_html, status, _ = fetch_page(session, work_url, respect_robots)
             if work_html:
                 work_soup = BeautifulSoup(work_html, "lxml")
                 # Try to find first chapter link
@@ -673,13 +675,14 @@ def sample_royalroad(
     session: requests.Session,
     genre_tags: list[str],
     count: int,
+    respect_robots: bool = True,
 ) -> list[str]:
     """Sample best-rated LitRPG fictions from Royal Road. Returns first chapter URLs."""
     urls = []
     genre = genre_tags[0] if genre_tags else "litrpg"
     listing_url = f"https://www.royalroad.com/fictions/best-rated?genre={genre}"
     log.info(f"SAMPLE  Royal Road listing: {listing_url}")
-    html, status, _ = fetch_page(session, listing_url)
+    html, status, _ = fetch_page(session, listing_url, respect_robots)
     if not html:
         return []
 
@@ -691,7 +694,7 @@ def sample_royalroad(
             break
         fiction_url = "https://www.royalroad.com" + link["href"]
         polite_delay()
-        fiction_html, _ = fetch_page(session, fiction_url)
+        fiction_html, status, _ = fetch_page(session, fiction_url, respect_robots)
         if not fiction_html:
             continue
 
@@ -715,12 +718,13 @@ def sample_royalroad(
 def sample_syosetu(
     session: requests.Session,
     count: int,
+    respect_robots: bool = True,
 ) -> list[str]:
     """Sample top-ranked works from Syosetu daily ranking. Returns first chapter URLs."""
     urls = []
     ranking_url = "https://yomou.syosetu.com/rank/list/type/daily_total/"
     log.info(f"SAMPLE  Syosetu ranking: {ranking_url}")
-    html, status, _ = fetch_page(session, ranking_url)
+    html, status, _ = fetch_page(session, ranking_url, respect_robots)
     if not html:
         return []
 
@@ -738,7 +742,7 @@ def sample_syosetu(
             href = "https://ncode.syosetu.com" + href
 
         polite_delay()
-        index_html, _ = fetch_page(session, href)
+        index_html, status, _ = fetch_page(session, href, respect_robots)
         if not index_html:
             continue
 
@@ -755,11 +759,108 @@ def sample_syosetu(
     return urls[:count]
 
 
+def sample_kakuyomu(
+    session: requests.Session,
+    count: int,
+    respect_robots: bool = True,
+) -> list[str]:
+    """Sample top-ranked works from Kakuyomu daily ranking. Returns episode URLs."""
+    urls = []
+    ranking_url = "https://kakuyomu.jp/ranking/total/daily"
+    log.info(f"SAMPLE  Kakuyomu ranking: {ranking_url}")
+    html, status, _ = fetch_page(session, ranking_url, respect_robots)
+    if not html:
+        return []
+
+    soup = BeautifulSoup(html, "lxml")
+    # ranking-item_title a[href^='/works/']
+    # Use newer selector based on site structure
+    novel_links = soup.select("h3.rankingItem-title a[href^='/works/']")
+    if not novel_links:
+        # Fallback for different layouts
+        novel_links = soup.select("a.work-title[href^='/works/']")
+
+    for link in novel_links[:count * 2]:
+        if len(urls) >= count:
+            break
+        href = link.get("href", "")
+        if not href:
+            continue
+        work_url = "https://kakuyomu.jp" + href
+        
+        polite_delay()
+        index_html, status, _ = fetch_page(session, work_url, respect_robots)
+        if not index_html:
+            continue
+        
+        isoup = BeautifulSoup(index_html, "lxml")
+        # Find first episode link
+        episode_link = isoup.select_one("div.widget-toc-items a[href*='/episodes/']")
+        if not episode_link:
+             episode_link = isoup.select_one("a.episode-title[href*='/episodes/']")
+             
+        if episode_link:
+            ehref = episode_link.get("href", "")
+            if not ehref.startswith("http"):
+                ehref = "https://kakuyomu.jp" + ehref
+            urls.append(ehref)
+
+    return urls[:count]
+
+
+def sample_hameln(
+    session: requests.Session,
+    count: int,
+    respect_robots: bool = True,
+) -> list[str]:
+    """Sample top-ranked fan-fiction from Hameln. Returns first episode URLs."""
+    urls = []
+    # Using the overall daily ranking for original works/highly praised content
+    ranking_url = "https://syosetu.org/?mode=rank_total"
+    log.info(f"SAMPLE  Hameln ranking: {ranking_url}")
+    html, status, _ = fetch_page(session, ranking_url, respect_robots)
+    if not html:
+        return []
+
+    soup = BeautifulSoup(html, "lxml")
+    # Links look like: //syosetu.org/novel/12345/
+    novel_links = soup.select("a[href*='/novel/']")
+    
+    seen_work_ids = set()
+    for link in novel_links:
+        if len(urls) >= count:
+            break
+        href = link.get("href", "")
+        if not href:
+            continue
+        
+        # Normalize and extract work ID
+        if href.startswith("//"):
+            href = "https:" + href
+        elif href.startswith("/"):
+            href = "https://syosetu.org" + href
+            
+        match = re.search(r"/novel/(\d+)/", href)
+        if not match:
+            continue
+        work_id = match.group(1)
+        if work_id in seen_work_ids:
+            continue
+        seen_work_ids.add(work_id)
+        
+        # Generally, first episode is at /novel/id/1.html
+        first_ep = f"https://syosetu.org/novel/{work_id}/1.html"
+        urls.append(first_ep)
+
+    return urls[:count]
+
+
 def resolve_urls(
     session: requests.Session,
     source_id: str,
     config: dict,
     dry_run: bool = False,
+    respect_robots: bool = True,
 ) -> list[str]:
     """Return list of URLs to scrape. Calls sampler if urls list is empty."""
     static_urls = config.get("urls", [])
@@ -773,11 +874,16 @@ def resolve_urls(
         return [f"[would sample {count} URLs from {strategy}]"]
 
     if strategy == "ao3":
-        return sample_ao3(session, config.get("sample_tags", []), count)
+        lang_id = config.get("language_id", 1)
+        return sample_ao3(session, config.get("sample_tags", []), count, respect_robots, lang_id)
     elif strategy == "royalroad":
-        return sample_royalroad(session, config.get("sample_tags", []), count)
+        return sample_royalroad(session, config.get("sample_tags", []), count, respect_robots)
     elif strategy == "syosetu":
-        return sample_syosetu(session, count)
+        return sample_syosetu(session, count, respect_robots)
+    elif strategy == "kakuyomu":
+        return sample_kakuyomu(session, count, respect_robots)
+    elif strategy == "hameln":
+        return sample_hameln(session, count, respect_robots)
     else:
         log.warning(f"No sample strategy for {source_id}")
         return []
@@ -1048,7 +1154,7 @@ def run_source(
     update_check: bool = False,
 ) -> None:
     log.info(f"=== {category.upper()} / {source_id} ===")
-    urls = resolve_urls(session, source_id, config, dry_run)
+    urls = resolve_urls(session, source_id, config, dry_run, respect_robots)
 
     if not urls:
         log.warning(f"SKIP    {source_id} | no URLs resolved")
@@ -1115,7 +1221,7 @@ def run_all_interleaved(
         for source_id, config in targets.items():
             if sources_filter and source_id not in sources_filter:
                 continue
-            urls = resolve_urls(session, source_id, config, dry_run)
+            urls = resolve_urls(session, source_id, config, dry_run, respect_robots)
             for url in urls:
                 if dry_run:
                     log.info(f"DRY-RUN WOULD_FETCH  {url}")
@@ -1172,7 +1278,7 @@ def main() -> None:
         help=f"Path to scraper_config.yaml (default: {CONFIG_PATH}).",
     )
     parser.add_argument(
-        "--category", choices=["trpg", "webnovel"],
+        "--category",
         help="Limit to one category."
     )
     parser.add_argument(

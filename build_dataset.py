@@ -552,7 +552,7 @@ def main() -> None:
         help="Which dataset to build (default: both)."
     )
     parser.add_argument(
-        "--category", choices=["trpg", "webnovel"],
+        "--category",
         help="Only process sources from this category."
     )
     parser.add_argument(
@@ -596,10 +596,21 @@ def main() -> None:
     trpg_sources = []
     webnovel_sources = []
 
-    if not category_filter or category_filter == "trpg":
-        trpg_sources = load_raw_sources(raw_dir, category="trpg")
-    if not category_filter or category_filter == "webnovel":
-        webnovel_sources = load_raw_sources(raw_dir, category="webnovel")
+    if category_filter:
+        if category_filter == "webnovel":
+            webnovel_sources = load_raw_sources(raw_dir, category="webnovel")
+        else:
+            # Any other category (trpg, extra_lore, etc.) maps to the RPG dataset
+            trpg_sources = load_raw_sources(raw_dir, category=category_filter)
+    else:
+        # Load everything
+        if raw_dir.exists():
+            for cat_path in raw_dir.iterdir():
+                if cat_path.is_dir():
+                    if cat_path.name == "webnovel":
+                        webnovel_sources.extend(load_raw_sources(raw_dir, category="webnovel"))
+                    else:
+                        trpg_sources.extend(load_raw_sources(raw_dir, category=cat_path.name))
 
     rpg_records: list[dict] = []
     literature_records: list[dict] = []

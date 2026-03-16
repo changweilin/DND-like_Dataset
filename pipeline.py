@@ -94,19 +94,19 @@ def _build_cmd(args: argparse.Namespace) -> list[str]:
 def _validate_cmd(args: argparse.Namespace) -> list[str]:
     cmd = [sys.executable, "validate_dataset.py"]
     # dataset filter follows category
-    if args.category == "trpg":
-        cmd += ["--dataset", "rpg"]
-    elif args.category == "webnovel":
+    if args.category == "webnovel":
         cmd += ["--dataset", "literature"]
+    elif args.category:
+        cmd += ["--dataset", "rpg"]
     return cmd
 
 
 def _export_cmd(args: argparse.Namespace) -> list[str]:
     cmd = [sys.executable, "export_hf.py"]
-    if args.category == "trpg":
-        cmd += ["--dataset", "rpg"]
-    elif args.category == "webnovel":
+    if args.category == "webnovel":
         cmd += ["--dataset", "literature"]
+    elif args.category:
+        cmd += ["--dataset", "rpg"]
     return cmd
 
 
@@ -135,8 +135,8 @@ def main() -> None:
         help="Run export_hf.py as the final step.",
     )
     parser.add_argument(
-        "--category", choices=["trpg", "webnovel"],
-        help="Limit scrape and build to one category.",
+        "--category",
+        help="Limit scrape and build to one category (e.g. trpg, webnovel, extra_lore).",
     )
     parser.add_argument(
         "--fresh", action="store_true",
