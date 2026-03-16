@@ -40,6 +40,12 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+try:
+    import cloudscraper as _cloudscraper
+    _CLOUDSCRAPER_AVAILABLE = True
+except ImportError:
+    _CLOUDSCRAPER_AVAILABLE = False
+
 # ---------------------------------------------------------------------------
 # CRAWL TARGETS
 # ---------------------------------------------------------------------------
@@ -174,6 +180,8 @@ CRAWL_TARGETS: dict[str, dict] = {
             "sample_tags": ["Fantasy", "Science Fiction"],
             "sample_count": 30,
             "tags": ["fanfic", "original", "fantasy", "en"],
+            "min_delay": 8.0,   # AO3 guidelines ask for respectful pacing
+            "max_delay": 15.0,
         },
         "royalroad_litrpg": {
             "urls": [],  # populated dynamically by sample_royalroad()
@@ -184,6 +192,8 @@ CRAWL_TARGETS: dict[str, dict] = {
             "sample_tags": ["litrpg"],
             "sample_count": 20,
             "tags": ["litrpg", "progression", "fantasy", "en"],
+            "min_delay": 5.0,   # behind Cloudflare; slower = fewer challenges
+            "max_delay": 10.0,
         },
         "syosetu_isekai": {
             "urls": [],  # populated dynamically by sample_syosetu()
@@ -211,10 +221,9 @@ CRAWL_TARGETS: dict[str, dict] = {
 # HTTP HEADERS (reused from crawl_world_lore.py — proven effective)
 # ---------------------------------------------------------------------------
 
+# Base headers: keys not present in a UA profile entry are always included.
 _HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7,ja;q=0.6",
     "Accept-Encoding": "gzip, deflate, br",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
@@ -224,6 +233,99 @@ _HEADERS = {
     "Sec-Fetch-User": "?1",
     "Cache-Control": "max-age=0",
 }
+
+# ---------------------------------------------------------------------------
+# USER-AGENT POOL
+# Each entry overrides the matching keys in _HEADERS for the session lifetime.
+# Firefox and Safari entries omit Sec-CH-UA (those browsers don't send it).
+# Safari entries use a narrower Accept header matching real Safari behaviour.
+# ---------------------------------------------------------------------------
+
+_UA_POOL: list[dict] = [
+    {   # Chrome 124 / Windows 10
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-CH-UA": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+        "Sec-CH-UA-Mobile": "?0",
+        "Sec-CH-UA-Platform": '"Windows"',
+    },
+    {   # Chrome 122 / macOS 14
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-CH-UA": '"Chromium";v="122", "Google Chrome";v="122", "Not-A.Brand";v="99"',
+        "Sec-CH-UA-Mobile": "?0",
+        "Sec-CH-UA-Platform": '"macOS"',
+    },
+    {   # Firefox 124 / Windows 10
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+    },
+    {   # Firefox 123 / macOS 14
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.4; rv:123.0) Gecko/20100101 Firefox/123.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+    },
+    {   # Edge 122 / Windows 11
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-CH-UA": '"Chromium";v="122", "Microsoft Edge";v="122", "Not-A.Brand";v="99"',
+        "Sec-CH-UA-Mobile": "?0",
+        "Sec-CH-UA-Platform": '"Windows"',
+    },
+    {   # Safari 17.3 / macOS 14
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+    },
+    {   # Chrome 121 / Linux
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-CH-UA": '"Chromium";v="121", "Google Chrome";v="121", "Not-A.Brand";v="99"',
+        "Sec-CH-UA-Mobile": "?0",
+        "Sec-CH-UA-Platform": '"Linux"',
+    },
+    {   # Firefox 122 / Linux
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:122.0) Gecko/20100101 Firefox/122.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+    },
+    {   # Edge 121 / Windows 10
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.2277.128",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-CH-UA": '"Chromium";v="121", "Microsoft Edge";v="121", "Not-A.Brand";v="99"',
+        "Sec-CH-UA-Mobile": "?0",
+        "Sec-CH-UA-Platform": '"Windows"',
+    },
+    {   # Chrome 120 / Windows 10 (original profile, kept for diversity)
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7,ja;q=0.6",
+        "Sec-CH-UA": '"Chromium";v="120", "Google Chrome";v="120", "Not-A.Brand";v="99"',
+        "Sec-CH-UA-Mobile": "?0",
+        "Sec-CH-UA-Platform": '"Windows"',
+    },
+]
+
+
+def _pick_ua_profile() -> dict:
+    """Pick one UA profile at random. Called once per build_session()."""
+    return random.choice(_UA_POOL)
+
+
+def _build_referer(url: str) -> str:
+    """Return a plausible Referer for url, simulating natural site navigation."""
+    netloc = urllib.parse.urlparse(url).netloc
+    if "fandom.com" in netloc:
+        return f"https://{netloc}/wiki/"
+    if "lexicanum.com" in netloc:
+        return f"https://{netloc}/wiki/Main_Page"
+    if "royalroad.com" in netloc:
+        return "https://www.royalroad.com/"
+    if "archiveofourown.org" in netloc:
+        return "https://archiveofourown.org/"
+    if "syosetu.com" in netloc:
+        return "https://yomou.syosetu.com/"
+    return f"https://{netloc}/"
 
 # ---------------------------------------------------------------------------
 # LOGGING SETUP
@@ -260,9 +362,21 @@ log = setup_logging()
 # HTTP LAYER
 # ---------------------------------------------------------------------------
 
-def build_session() -> requests.Session:
-    session = requests.Session()
-    session.headers.update(_HEADERS)
+def build_session(use_cloudscraper: bool = True) -> requests.Session:
+    ua_profile = _pick_ua_profile()
+
+    if use_cloudscraper and _CLOUDSCRAPER_AVAILABLE:
+        # cloudscraper is a requests.Session subclass that solves Cloudflare
+        # JS challenges automatically (used by Fandom wikis, RoyalRoad, etc.)
+        session = _cloudscraper.create_scraper(
+            browser={"browser": "chrome", "platform": "windows", "mobile": False}
+        )
+    else:
+        session = requests.Session()
+
+    # Overlay UA profile on top of base headers
+    session.headers.update({**_HEADERS, **ua_profile})
+
     retry = Retry(
         total=3,
         backoff_factor=1,
@@ -272,6 +386,15 @@ def build_session() -> requests.Session:
     adapter = HTTPAdapter(max_retries=retry)
     session.mount("https://", adapter)
     session.mount("http://", adapter)
+
+    # Restore cookies saved from previous runs
+    for c in load_cookies():
+        session.cookies.set(
+            c["name"], c["value"],
+            domain=c.get("domain", ""),
+            path=c.get("path", "/"),
+        )
+
     return session
 
 
@@ -294,20 +417,23 @@ def check_robots(url: str) -> bool:
     rp = _ROBOTS_CACHE[domain_key]
     if rp is None:
         return True
-    return rp.can_fetch(_HEADERS["User-Agent"], url)
+    # Use "*" so the check applies to the most permissive robots.txt rule;
+    # version-specific UA strings rarely appear in Disallow directives.
+    return rp.can_fetch("*", url)
 
 
-def _fetch_with_curl(url: str) -> Optional[str]:
+def _fetch_with_curl(url: str, referer: Optional[str] = None) -> Optional[str]:
     """Fallback using system curl, which often bypasses TLS fingerprinting."""
     try:
         cmd = [
             "curl", "-s", "-L",
-            "-H", f"User-Agent: {_HEADERS['User-Agent']}",
+            "-H", f"User-Agent: {random.choice(_UA_POOL)['User-Agent']}",
             "-H", f"Accept: {_HEADERS['Accept']}",
-            "-H", f"Accept-Language: {_HEADERS['Accept-Language']}",
-            "--max-time", "20",
-            url,
+            "-H", "Accept-Language: en-US,en;q=0.9",
         ]
+        if referer:
+            cmd += ["-H", f"Referer: {referer}"]
+        cmd += ["--max-time", "20", url]
         result = subprocess.run(
             cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore"
         )
@@ -335,23 +461,24 @@ def fetch_page(
         return None, 0, {}
 
     _no_cache: dict = {"etag": None, "last_modified": None}
+    referer = _build_referer(url)
 
-    # Build conditional GET headers when we have cached validators
-    cond_headers: dict = {}
+    # Build per-request headers: conditional GET validators + Referer
+    req_headers: dict = {"Referer": referer}
     if etag:
-        cond_headers["If-None-Match"] = etag
+        req_headers["If-None-Match"] = etag
     if last_modified:
-        cond_headers["If-Modified-Since"] = last_modified
+        req_headers["If-Modified-Since"] = last_modified
 
     try:
-        resp = session.get(url, timeout=15, headers=cond_headers or None)
+        resp = session.get(url, timeout=15, headers=req_headers)
 
         # 304 Not Modified — content unchanged since last visit
         if resp.status_code == 304:
             return None, 304, _no_cache
 
         if resp.status_code == 403:
-            html = _fetch_with_curl(url)
+            html = _fetch_with_curl(url, referer=referer)
             if html:
                 return html, 200, _no_cache
         resp.raise_for_status()
@@ -364,13 +491,13 @@ def fetch_page(
         return resp.text, resp.status_code, cache_headers
     except requests.HTTPError as e:
         status = e.response.status_code if e.response is not None else 0
-        html = _fetch_with_curl(url)
+        html = _fetch_with_curl(url, referer=referer)
         if html:
             return html, 200, _no_cache
         log.warning(f"FAILED  {url} | status={status} | reason={e}")
         return None, status, _no_cache
     except Exception as e:
-        html = _fetch_with_curl(url)
+        html = _fetch_with_curl(url, referer=referer)
         if html:
             return html, 200, _no_cache
         log.warning(f"FAILED  {url} | reason={e}")
@@ -613,7 +740,7 @@ def sample_ao3(
             f"&page={page}"
         )
         log.info(f"SAMPLE  AO3 listing page {page}")
-        html, status = fetch_page(session, listing_url)
+        html, status, _ = fetch_page(session, listing_url)
         if not html:
             break
 
@@ -655,7 +782,7 @@ def sample_royalroad(
     genre = genre_tags[0] if genre_tags else "litrpg"
     listing_url = f"https://www.royalroad.com/fictions/best-rated?genre={genre}"
     log.info(f"SAMPLE  Royal Road listing: {listing_url}")
-    html, status = fetch_page(session, listing_url)
+    html, status, _ = fetch_page(session, listing_url)
     if not html:
         return []
 
@@ -696,7 +823,7 @@ def sample_syosetu(
     urls = []
     ranking_url = "https://yomou.syosetu.com/rank/list/type/daily_total/"
     log.info(f"SAMPLE  Syosetu ranking: {ranking_url}")
-    html, status = fetch_page(session, ranking_url)
+    html, status, _ = fetch_page(session, ranking_url)
     if not html:
         return []
 
@@ -817,6 +944,40 @@ def save_raw(
 
 
 STATE_PATH = pathlib.Path("data/scrape_state.json")
+COOKIES_PATH = pathlib.Path("data/cookies.json")
+
+
+def load_cookies() -> list[dict]:
+    """Load persisted cookies, discarding any that have already expired."""
+    if not COOKIES_PATH.exists():
+        return []
+    try:
+        raw: list[dict] = json.loads(COOKIES_PATH.read_text(encoding="utf-8"))
+        now = time.time()
+        return [c for c in raw if c.get("expires") is None or c["expires"] > now]
+    except Exception:
+        return []
+
+
+def save_cookies(session: requests.Session) -> None:
+    """Persist all session cookies to disk (atomic write)."""
+    cookies = []
+    for cookie in session.cookies:
+        cookies.append({
+            "name": cookie.name,
+            "value": cookie.value,
+            "domain": cookie.domain,
+            "path": cookie.path,
+            "secure": cookie.secure,
+            "expires": cookie.expires,
+        })
+    if not cookies:
+        return
+    COOKIES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = COOKIES_PATH.with_suffix(".tmp")
+    tmp.write_text(json.dumps(cookies, ensure_ascii=False, indent=2), encoding="utf-8")
+    os.replace(tmp, COOKIES_PATH)
+    log.debug(f"Saved {len(cookies)} cookie(s) to {COOKIES_PATH}")
 
 
 def load_state() -> dict:
@@ -925,7 +1086,11 @@ def _process_url(
 
     extractor_name = config.get("extractor", "generic")
 
-    domain_polite_delay(url)
+    domain_polite_delay(
+        url,
+        min_s=config.get("min_delay", 3.0),
+        max_s=config.get("max_delay", 6.0),
+    )
     text, status, cache_hdrs, checksum = scrape_url(
         session, url, extractor_name, respect_robots, cond_etag, cond_lm
     )
@@ -966,6 +1131,7 @@ def _process_url(
         content_checksum=checksum,
     )
     save_state(state)
+    save_cookies(session)
 
 
 def _new_counters() -> dict:
@@ -1183,6 +1349,7 @@ def main() -> None:
                 update_check=args.update_check,
             )
 
+    save_cookies(session)
     log.info("All done.")
 
 
