@@ -74,6 +74,8 @@ def _scraper_cmd(args: argparse.Namespace) -> list[str]:
         cmd += ["--category", args.category]
     if args.dry_run:
         cmd.append("--dry-run")
+    if args.no_robots:
+        cmd.append("--no-robots")
     return cmd
 
 
@@ -155,6 +157,10 @@ def main() -> None:
     parser.add_argument(
         "--fail-fast", action="store_true",
         help="Abort pipeline on first step that exits non-zero.",
+    )
+    parser.add_argument(
+        "--no-robots", action="store_true",
+        help="Skip robots.txt checks in scraper.py.",
     )
     args = parser.parse_args()
 
