@@ -25,6 +25,7 @@ import pathlib
 import random
 import re
 import sys
+import unicodedata
 from typing import Optional
 
 # ---------------------------------------------------------------------------
@@ -162,6 +163,68 @@ def split_into_chunks(
 
 
 # ---------------------------------------------------------------------------
+# BOILERPLATE / AD PATTERN FILTER
+# ---------------------------------------------------------------------------
+
+# Phrases that reliably indicate non-narrative boilerplate surviving extraction.
+# Each pattern is matched case-insensitively against the full chunk text.
+_BOILERPLATE_PATTERNS: list[re.Pattern] = [re.compile(p, re.IGNORECASE) for p in [
+    r"\bcookies?\b.{0,40}\baccept\b",          # "accept cookies"
+    r"\bprivacy policy\b",
+    r"\bterms of (service|use)\b",
+    r"\ball rights reserved\b",
+    r"\bcopyright \d{4}\b",
+    r"\bsubscribe (now|today|to)\b",
+    r"\bnewsletter\b",
+    r"\bclick here\b",
+    r"\badvertisement\b",
+    r"\bsponsored (by|content)\b",
+    r"\bskip (to|the) (main |navigation|content)\b",
+    r"\blog in\b.{0,20}\bsign up\b",
+    r"\bsign (in|up) (to|for)\b",
+    r"\bshare (this|on)\b",
+    r"\bdisqus\b",
+    r"\bjavascript (is |must be )(enabled|required)\b",
+]]
+
+# If this many patterns match, the chunk is flagged as boilerplate.
+_BOILERPLATE_THRESHOLD = 2
+
+# ---------------------------------------------------------------------------
+# LANGUAGE DETECTION HEURISTIC (no external library)
+# ---------------------------------------------------------------------------
+
+def _detect_language_mismatch(text: str, expected_language: str) -> bool:
+    """
+    Return True if the text appears to be in the WRONG language.
+    Uses Unicode block ratios — no external dependency.
+    """
+    if not text:
+        return False
+
+    # Count letter characters by Unicode category
+    letters = [c for c in text if unicodedata.category(c).startswith("L")]
+    if not letters:
+        return False
+    total = len(letters)
+
+    ascii_letters = sum(1 for c in letters if ord(c) < 128)
+    cjk_chars = sum(1 for c in letters if "\u4E00" <= c <= "\u9FFF" or "\u3400" <= c <= "\u4DBF")
+    kana_chars = sum(1 for c in letters if "\u3040" <= c <= "\u30FF")
+    cyrillic_chars = sum(1 for c in letters if "\u0400" <= c <= "\u04FF")
+
+    if expected_language == "en":
+        # English text should be overwhelmingly ASCII letters
+        if ascii_letters / total < 0.70:
+            return True
+    elif expected_language == "ja":
+        # Japanese text should have a meaningful CJK + kana presence
+        if (cjk_chars + kana_chars) / total < 0.30:
+            return True
+
+    return False
+
+# ---------------------------------------------------------------------------
 # QUALITY FILTER
 # ---------------------------------------------------------------------------
 
@@ -193,6 +256,15 @@ def is_quality_chunk(text: str, language: str = "en") -> bool:
         jp_chars = sum(1 for c in text if "\u3040" <= c <= "\u30FF")
         if jp_chars / len(text) < 0.10:
             return False
+
+    # Language mismatch detection (heuristic, no external library)
+    if _detect_language_mismatch(text, language):
+        return False
+
+    # Boilerplate / ad text detection
+    matches = sum(1 for p in _BOILERPLATE_PATTERNS if p.search(text))
+    if matches >= _BOILERPLATE_THRESHOLD:
+        return False
 
     return True
 

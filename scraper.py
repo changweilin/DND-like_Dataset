@@ -18,6 +18,7 @@ Usage:
 import argparse
 import datetime
 import hashlib
+import html as _html
 import json
 import logging
 import os
@@ -27,6 +28,7 @@ import re
 import subprocess
 import sys
 import time
+import unicodedata
 import urllib.parse
 import urllib.robotparser
 from typing import Callable, Optional
@@ -512,6 +514,38 @@ EXTRACTOR_MAP: dict[str, Callable[[BeautifulSoup], str]] = {
 }
 
 # ---------------------------------------------------------------------------
+# TEXT CLEANING (post-extraction)
+# ---------------------------------------------------------------------------
+
+def clean_text(text: str) -> str:
+    """
+    Post-extraction text cleaning pipeline (no LLM required):
+    1. HTML entity decode — catches any &amp; &lt; &#160; that BS4 left behind
+    2. Unicode NFKC normalization — fullwidth ASCII→normal, ligatures→letters,
+       non-breaking spaces→space, smart quotes→straight, etc.
+    3. Collapse runs of spaces within a line (but preserve newlines)
+    4. Collapse 3+ consecutive blank lines to 2
+    5. Strip leading/trailing whitespace
+    """
+    # 1. HTML entity decode (belt-and-suspenders; BS4 handles most but not all)
+    text = _html.unescape(text)
+
+    # 2. Unicode NFKC normalization
+    text = unicodedata.normalize("NFKC", text)
+
+    # 3. Collapse intra-line whitespace runs (spaces/tabs) to single space
+    lines = []
+    for line in text.splitlines():
+        lines.append(re.sub(r"[ \t]+", " ", line).strip())
+    text = "\n".join(lines)
+
+    # 4. Collapse excess blank lines
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    # 5. Strip
+    return text.strip()
+
+# ---------------------------------------------------------------------------
 # SAMPLING STRATEGIES FOR LARGE PLATFORMS
 # ---------------------------------------------------------------------------
 
@@ -792,9 +826,7 @@ def scrape_url(
     soup = BeautifulSoup(html, "lxml")
     extractor = EXTRACTOR_MAP.get(extractor_name, extract_generic)
     text = extractor(soup)
-
-    # Collapse excess blank lines
-    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    text = clean_text(text)
     return text or None, status
 
 
