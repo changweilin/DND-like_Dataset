@@ -16,9 +16,11 @@ Usage:
 """
 
 import argparse
+import collections
 import datetime
 import hashlib
 import html as _html
+import itertools
 import json
 import logging
 import os
@@ -377,6 +379,25 @@ def fetch_page(
 
 def polite_delay(min_s: float = 1.0, max_s: float = 2.0) -> None:
     time.sleep(random.uniform(min_s, max_s))
+
+
+_DOMAIN_LAST_HIT: dict[str, float] = {}
+
+
+def domain_polite_delay(url: str, min_s: float = 3.0, max_s: float = 6.0) -> None:
+    """Per-domain rate limiter with random jitter.
+
+    Ensures at least min_s seconds have elapsed since the last request to the
+    same netloc. The random upper bound (max_s) prevents perfectly regular
+    request intervals that automated systems can fingerprint.
+    Call this immediately before each fetch.
+    """
+    domain = urllib.parse.urlparse(url).netloc
+    elapsed = time.time() - _DOMAIN_LAST_HIT.get(domain, 0.0)
+    target = random.uniform(min_s, max_s)
+    if elapsed < target:
+        time.sleep(target - elapsed)
+    _DOMAIN_LAST_HIT[domain] = time.time()
 
 # ---------------------------------------------------------------------------
 # EXTRACTOR FUNCTIONS
@@ -879,6 +900,78 @@ def scrape_url(
     return text, status, cache_headers, checksum
 
 
+def _process_url(
+    session: requests.Session,
+    category: str,
+    source_id: str,
+    config: dict,
+    url: str,
+    state: dict,
+    respect_robots: bool,
+    update_check: bool,
+    counters: dict,
+) -> None:
+    """Fetch, evaluate, and persist one URL. Updates counters dict in-place.
+
+    Applies domain_polite_delay() before fetching, so callers must NOT add
+    their own sleep.
+    """
+    prev_entry = state.get("scraped_urls", {}).get(url, {})
+    already_scraped = prev_entry.get("status") == "ok"
+
+    cond_etag = prev_entry.get("etag") if (update_check and already_scraped) else None
+    cond_lm = prev_entry.get("last_modified") if (update_check and already_scraped) else None
+    prev_checksum = prev_entry.get("content_checksum") if (update_check and already_scraped) else None
+
+    extractor_name = config.get("extractor", "generic")
+
+    domain_polite_delay(url)
+    text, status, cache_hdrs, checksum = scrape_url(
+        session, url, extractor_name, respect_robots, cond_etag, cond_lm
+    )
+
+    if status == 304:
+        log.info(f"UNCHANGED (304)  {url}")
+        counters["unchanged"] += 1
+        return
+
+    if not text:
+        log.warning(f"EMPTY   {url} | status={status} | words=0")
+        if not already_scraped:
+            update_state(state, url, "failed", status, None, 0, 0)
+            save_state(state)
+        counters["failed"] += 1
+        return
+
+    if update_check and already_scraped and checksum == prev_checksum:
+        log.info(f"UNCHANGED (md5)  {url}")
+        counters["unchanged"] += 1
+        return
+
+    word_count = len(text.split())
+    char_count = len(text)
+    txt_path = save_raw(text, url, category, source_id, config, status)
+
+    if update_check and already_scraped:
+        log.info(f"UPDATED  {txt_path} | status={status} | words={word_count} | chars={char_count}")
+        counters["updated"] += 1
+    else:
+        log.info(f"STORED  {txt_path} | status={status} | words={word_count} | chars={char_count}")
+        counters["stored"] += 1
+
+    update_state(
+        state, url, "ok", status, txt_path, word_count, char_count,
+        etag=cache_hdrs.get("etag"),
+        last_modified=cache_hdrs.get("last_modified"),
+        content_checksum=checksum,
+    )
+    save_state(state)
+
+
+def _new_counters() -> dict:
+    return {"stored": 0, "skipped": 0, "failed": 0, "unchanged": 0, "updated": 0}
+
+
 def run_source(
     session: requests.Session,
     category: str,
@@ -897,78 +990,23 @@ def run_source(
         log.warning(f"SKIP    {source_id} | no URLs resolved")
         return
 
-    extractor_name = config.get("extractor", "generic")
-    stored = 0
-    skipped = 0
-    failed = 0
-    unchanged = 0
-    updated = 0
-
+    counters = _new_counters()
     for url in urls:
         if dry_run:
             log.info(f"DRY-RUN WOULD_FETCH  {url}")
             continue
 
         prev_entry = state.get("scraped_urls", {}).get(url, {})
-        already_scraped = prev_entry.get("status") == "ok"
-
-        if already_scraped and not force and not update_check:
+        if prev_entry.get("status") == "ok" and not force and not update_check:
             log.info(f"SKIP    {url} | already scraped")
-            skipped += 1
+            counters["skipped"] += 1
             continue
 
-        # In update_check mode, pass cached validators for conditional GET
-        cond_etag = prev_entry.get("etag") if (update_check and already_scraped) else None
-        cond_lm = prev_entry.get("last_modified") if (update_check and already_scraped) else None
-        prev_checksum = prev_entry.get("content_checksum") if (update_check and already_scraped) else None
+        _process_url(session, category, source_id, config, url, state, respect_robots, update_check, counters)
 
-        text, status, cache_hdrs, checksum = scrape_url(
-            session, url, extractor_name, respect_robots, cond_etag, cond_lm
-        )
-        polite_delay()
-
-        # 304 Not Modified — server confirms content unchanged
-        if status == 304:
-            log.info(f"UNCHANGED (304)  {url}")
-            unchanged += 1
-            continue
-
-        if not text:
-            log.warning(f"EMPTY   {url} | status={status} | words=0")
-            if not already_scraped:
-                update_state(state, url, "failed", status, None, 0, 0)
-                save_state(state)
-            failed += 1
-            continue
-
-        # Content MD5 fallback — server fetched but content is identical
-        if update_check and already_scraped and checksum == prev_checksum:
-            log.info(f"UNCHANGED (md5)  {url}")
-            unchanged += 1
-            continue
-
-        word_count = len(text.split())
-        char_count = len(text)
-
-        txt_path = save_raw(text, url, category, source_id, config, status)
-        if update_check and already_scraped:
-            log.info(f"UPDATED  {txt_path} | status={status} | words={word_count} | chars={char_count}")
-            updated += 1
-        else:
-            log.info(f"STORED  {txt_path} | status={status} | words={word_count} | chars={char_count}")
-            stored += 1
-
-        update_state(
-            state, url, "ok", status, txt_path, word_count, char_count,
-            etag=cache_hdrs.get("etag"),
-            last_modified=cache_hdrs.get("last_modified"),
-            content_checksum=checksum,
-        )
-        save_state(state)
-
-    summary = f"stored={stored} skipped={skipped} failed={failed}"
+    summary = f"stored={counters['stored']} skipped={counters['skipped']} failed={counters['failed']}"
     if update_check:
-        summary += f" unchanged={unchanged} updated={updated}"
+        summary += f" unchanged={counters['unchanged']} updated={counters['updated']}"
     log.info(f"DONE    {source_id} | {summary}")
 
 
@@ -987,6 +1025,75 @@ def run_category(
         if sources_filter and source_id not in sources_filter:
             continue
         run_source(session, category, source_id, config, state, force, respect_robots, dry_run, update_check)
+
+
+def run_all_interleaved(
+    session: requests.Session,
+    categories_and_targets: list[tuple[str, dict]],
+    state: dict,
+    force: bool,
+    respect_robots: bool,
+    dry_run: bool,
+    sources_filter: Optional[list[str]],
+    update_check: bool = False,
+) -> None:
+    """Collect all pending URLs from every source, then process them in
+    round-robin domain order so no single server receives consecutive requests.
+
+    Phase 1: resolve all URL lists (may call samplers for AO3/RoyalRoad/Syosetu)
+    Phase 2: bucket URLs by netloc, interleave with itertools.zip_longest
+    Phase 3: process the interleaved list through _process_url()
+    """
+    # --- Phase 1: resolve ---
+    log.info("=== INTERLEAVED MODE: resolving work lists ===")
+    all_items: list[tuple[str, str, dict, str]] = []  # (category, source_id, config, url)
+    for category, targets in categories_and_targets:
+        for source_id, config in targets.items():
+            if sources_filter and source_id not in sources_filter:
+                continue
+            urls = resolve_urls(session, source_id, config, dry_run)
+            for url in urls:
+                if dry_run:
+                    log.info(f"DRY-RUN WOULD_FETCH  {url}")
+                    continue
+                prev_entry = state.get("scraped_urls", {}).get(url, {})
+                if prev_entry.get("status") == "ok" and not force and not update_check:
+                    log.debug(f"SKIP    {url} | already scraped")
+                    continue
+                all_items.append((category, source_id, config, url))
+
+    if dry_run or not all_items:
+        return
+
+    # --- Phase 2: bucket by domain, round-robin interleave ---
+    buckets: dict[str, list] = collections.defaultdict(list)
+    for item in all_items:
+        domain = urllib.parse.urlparse(item[3]).netloc
+        buckets[domain].append(item)
+
+    interleaved: list[tuple] = [
+        x
+        for row in itertools.zip_longest(*buckets.values())
+        for x in row
+        if x is not None
+    ]
+
+    log.info(
+        f"=== INTERLEAVED MODE: {len(interleaved)} URLs across "
+        f"{len(buckets)} domains ==="
+    )
+    for domain, items in buckets.items():
+        log.info(f"    {domain}: {len(items)} URL(s)")
+
+    # --- Phase 3: process ---
+    counters = _new_counters()
+    for category, source_id, config, url in interleaved:
+        _process_url(session, category, source_id, config, url, state, respect_robots, update_check, counters)
+
+    summary = f"stored={counters['stored']} skipped={counters['skipped']} failed={counters['failed']}"
+    if update_check:
+        summary += f" unchanged={counters['unchanged']} updated={counters['updated']}"
+    log.info(f"=== INTERLEAVED DONE | {summary} ===")
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -1025,6 +1132,14 @@ def main() -> None:
             "Only saves files that have actually changed."
         ),
     )
+    parser.add_argument(
+        "--interleave", action="store_true",
+        help=(
+            "Round-robin between sources instead of exhausting one site at a "
+            "time. Reduces the risk of per-IP rate-limit blocks by spreading "
+            "requests across domains. Combines with --update-check and --force."
+        ),
+    )
     args = parser.parse_args()
 
     session = build_session()
@@ -1037,21 +1152,36 @@ def main() -> None:
         else list(CRAWL_TARGETS.keys())
     )
 
-    for cat in categories_to_run:
-        if cat not in CRAWL_TARGETS:
-            log.warning(f"Unknown category: {cat}")
-            continue
-        run_category(
-            session,
-            cat,
-            CRAWL_TARGETS[cat],
-            state,
+    if args.interleave:
+        cats = [
+            (cat, CRAWL_TARGETS[cat])
+            for cat in categories_to_run
+            if cat in CRAWL_TARGETS
+        ]
+        run_all_interleaved(
+            session, cats, state,
             force=args.force,
             respect_robots=respect_robots,
             dry_run=args.dry_run,
             sources_filter=sources_filter,
             update_check=args.update_check,
         )
+    else:
+        for cat in categories_to_run:
+            if cat not in CRAWL_TARGETS:
+                log.warning(f"Unknown category: {cat}")
+                continue
+            run_category(
+                session,
+                cat,
+                CRAWL_TARGETS[cat],
+                state,
+                force=args.force,
+                respect_robots=respect_robots,
+                dry_run=args.dry_run,
+                sources_filter=sources_filter,
+                update_check=args.update_check,
+            )
 
     log.info("All done.")
 
