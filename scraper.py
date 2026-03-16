@@ -320,35 +320,59 @@ def fetch_page(
     session: requests.Session,
     url: str,
     respect_robots: bool = True,
-) -> tuple[Optional[str], int]:
-    """Fetch a URL. Returns (html_text, http_status). Never raises."""
+    etag: Optional[str] = None,
+    last_modified: Optional[str] = None,
+) -> tuple[Optional[str], int, dict]:
+    """Fetch a URL. Returns (html_text, http_status, cache_headers). Never raises.
+
+    cache_headers = {"etag": str|None, "last_modified": str|None}
+    On 304 Not Modified, html_text is None and http_status is 304.
+    """
     if respect_robots and not check_robots(url):
         log.warning(f"ROBOTS_BLOCKED {url}")
-        return None, 0
+        return None, 0, {}
+
+    _no_cache: dict = {"etag": None, "last_modified": None}
+
+    # Build conditional GET headers when we have cached validators
+    cond_headers: dict = {}
+    if etag:
+        cond_headers["If-None-Match"] = etag
+    if last_modified:
+        cond_headers["If-Modified-Since"] = last_modified
 
     try:
-        resp = session.get(url, timeout=15)
+        resp = session.get(url, timeout=15, headers=cond_headers or None)
+
+        # 304 Not Modified — content unchanged since last visit
+        if resp.status_code == 304:
+            return None, 304, _no_cache
+
         if resp.status_code == 403:
             html = _fetch_with_curl(url)
             if html:
-                return html, 200
+                return html, 200, _no_cache
         resp.raise_for_status()
         # Handle Shift-JIS and other encodings (important for Syosetu)
         resp.encoding = resp.apparent_encoding
-        return resp.text, resp.status_code
+        cache_headers = {
+            "etag": resp.headers.get("ETag"),
+            "last_modified": resp.headers.get("Last-Modified"),
+        }
+        return resp.text, resp.status_code, cache_headers
     except requests.HTTPError as e:
         status = e.response.status_code if e.response is not None else 0
         html = _fetch_with_curl(url)
         if html:
-            return html, 200
+            return html, 200, _no_cache
         log.warning(f"FAILED  {url} | status={status} | reason={e}")
-        return None, status
+        return None, status, _no_cache
     except Exception as e:
         html = _fetch_with_curl(url)
         if html:
-            return html, 200
+            return html, 200, _no_cache
         log.warning(f"FAILED  {url} | reason={e}")
-        return None, 0
+        return None, 0, _no_cache
 
 
 def polite_delay(min_s: float = 1.0, max_s: float = 2.0) -> None:
@@ -795,7 +819,18 @@ def is_already_scraped(state: dict, url: str) -> bool:
     return entry.get("status") == "ok"
 
 
-def update_state(state: dict, url: str, status: str, http_code: int, txt_path: Optional[pathlib.Path], word_count: int, char_count: int) -> None:
+def update_state(
+    state: dict,
+    url: str,
+    status: str,
+    http_code: int,
+    txt_path: Optional[pathlib.Path],
+    word_count: int,
+    char_count: int,
+    etag: Optional[str] = None,
+    last_modified: Optional[str] = None,
+    content_checksum: Optional[str] = None,
+) -> None:
     entry: dict = {
         "status": status,
         "http_code": http_code,
@@ -805,6 +840,12 @@ def update_state(state: dict, url: str, status: str, http_code: int, txt_path: O
         entry["output_file"] = str(txt_path)
         entry["word_count"] = word_count
         entry["char_count"] = char_count
+    if etag:
+        entry["etag"] = etag
+    if last_modified:
+        entry["last_modified"] = last_modified
+    if content_checksum:
+        entry["content_checksum"] = content_checksum
     state.setdefault("scraped_urls", {})[url] = entry
 
 # ---------------------------------------------------------------------------
@@ -816,18 +857,26 @@ def scrape_url(
     url: str,
     extractor_name: str,
     respect_robots: bool,
-) -> tuple[Optional[str], int]:
-    """Fetch URL and extract clean text. Returns (text_or_none, http_status)."""
+    etag: Optional[str] = None,
+    last_modified: Optional[str] = None,
+) -> tuple[Optional[str], int, dict, Optional[str]]:
+    """Fetch URL and extract clean text.
+
+    Returns (text_or_none, http_status, cache_headers, content_checksum).
+    text_or_none is None on failure *and* on 304 (check http_status to distinguish).
+    """
     log.info(f"FETCH   {url}")
-    html, status = fetch_page(session, url, respect_robots)
+    html, status, cache_headers = fetch_page(session, url, respect_robots, etag, last_modified)
     if not html:
-        return None, status
+        return None, status, cache_headers, None
 
     soup = BeautifulSoup(html, "lxml")
     extractor = EXTRACTOR_MAP.get(extractor_name, extract_generic)
-    text = extractor(soup)
-    text = clean_text(text)
-    return text or None, status
+    text = clean_text(extractor(soup))
+    if not text:
+        return None, status, cache_headers, None
+    checksum = hashlib.md5(text.encode("utf-8")).hexdigest()
+    return text, status, cache_headers, checksum
 
 
 def run_source(
@@ -839,6 +888,7 @@ def run_source(
     force: bool,
     respect_robots: bool,
     dry_run: bool,
+    update_check: bool = False,
 ) -> None:
     log.info(f"=== {category.upper()} / {source_id} ===")
     urls = resolve_urls(session, source_id, config, dry_run)
@@ -851,41 +901,75 @@ def run_source(
     stored = 0
     skipped = 0
     failed = 0
+    unchanged = 0
+    updated = 0
 
     for url in urls:
         if dry_run:
             log.info(f"DRY-RUN WOULD_FETCH  {url}")
             continue
 
-        if not force and is_already_scraped(state, url):
+        prev_entry = state.get("scraped_urls", {}).get(url, {})
+        already_scraped = prev_entry.get("status") == "ok"
+
+        if already_scraped and not force and not update_check:
             log.info(f"SKIP    {url} | already scraped")
             skipped += 1
             continue
 
-        text, status = scrape_url(session, url, extractor_name, respect_robots)
+        # In update_check mode, pass cached validators for conditional GET
+        cond_etag = prev_entry.get("etag") if (update_check and already_scraped) else None
+        cond_lm = prev_entry.get("last_modified") if (update_check and already_scraped) else None
+        prev_checksum = prev_entry.get("content_checksum") if (update_check and already_scraped) else None
+
+        text, status, cache_hdrs, checksum = scrape_url(
+            session, url, extractor_name, respect_robots, cond_etag, cond_lm
+        )
         polite_delay()
+
+        # 304 Not Modified — server confirms content unchanged
+        if status == 304:
+            log.info(f"UNCHANGED (304)  {url}")
+            unchanged += 1
+            continue
 
         if not text:
             log.warning(f"EMPTY   {url} | status={status} | words=0")
-            update_state(state, url, "failed", status, None, 0, 0)
+            if not already_scraped:
+                update_state(state, url, "failed", status, None, 0, 0)
+                save_state(state)
             failed += 1
-            save_state(state)
+            continue
+
+        # Content MD5 fallback — server fetched but content is identical
+        if update_check and already_scraped and checksum == prev_checksum:
+            log.info(f"UNCHANGED (md5)  {url}")
+            unchanged += 1
             continue
 
         word_count = len(text.split())
         char_count = len(text)
 
         txt_path = save_raw(text, url, category, source_id, config, status)
-        log.info(
-            f"STORED  {txt_path} | status={status} | words={word_count} | chars={char_count}"
+        if update_check and already_scraped:
+            log.info(f"UPDATED  {txt_path} | status={status} | words={word_count} | chars={char_count}")
+            updated += 1
+        else:
+            log.info(f"STORED  {txt_path} | status={status} | words={word_count} | chars={char_count}")
+            stored += 1
+
+        update_state(
+            state, url, "ok", status, txt_path, word_count, char_count,
+            etag=cache_hdrs.get("etag"),
+            last_modified=cache_hdrs.get("last_modified"),
+            content_checksum=checksum,
         )
-        update_state(state, url, "ok", status, txt_path, word_count, char_count)
-        stored += 1
         save_state(state)
 
-    log.info(
-        f"DONE    {source_id} | stored={stored} skipped={skipped} failed={failed}"
-    )
+    summary = f"stored={stored} skipped={skipped} failed={failed}"
+    if update_check:
+        summary += f" unchanged={unchanged} updated={updated}"
+    log.info(f"DONE    {source_id} | {summary}")
 
 
 def run_category(
@@ -897,11 +981,12 @@ def run_category(
     respect_robots: bool,
     dry_run: bool,
     sources_filter: Optional[list[str]] = None,
+    update_check: bool = False,
 ) -> None:
     for source_id, config in targets.items():
         if sources_filter and source_id not in sources_filter:
             continue
-        run_source(session, category, source_id, config, state, force, respect_robots, dry_run)
+        run_source(session, category, source_id, config, state, force, respect_robots, dry_run, update_check)
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -931,6 +1016,15 @@ def main() -> None:
         "--dry-run", action="store_true",
         help="Print what would be scraped without making HTTP requests."
     )
+    parser.add_argument(
+        "--update-check", action="store_true",
+        help=(
+            "Re-visit already-scraped URLs to detect changes. "
+            "Uses HTTP conditional GET (ETag/Last-Modified) when available; "
+            "falls back to content MD5 comparison. "
+            "Only saves files that have actually changed."
+        ),
+    )
     args = parser.parse_args()
 
     session = build_session()
@@ -956,6 +1050,7 @@ def main() -> None:
             respect_robots=respect_robots,
             dry_run=args.dry_run,
             sources_filter=sources_filter,
+            update_check=args.update_check,
         )
 
     log.info("All done.")
