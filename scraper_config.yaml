@@ -1,0 +1,243 @@
+# scraper_config.yaml
+# Edit this file to add/remove sources, adjust delays, or change paths.
+# scraper.py reads this at startup; changes take effect on next run.
+# scheduler.py reads the [schedule] section to control the periodic timer.
+
+# ---------------------------------------------------------------------------
+# Global HTTP settings
+# ---------------------------------------------------------------------------
+http:
+  min_delay: 3.0       # minimum seconds between requests to the same domain
+  max_delay: 6.0       # random upper bound (prevents regular timing fingerprints)
+  timeout: 15          # request timeout in seconds
+  retry_total: 3       # retries on 429/5xx
+  backoff_factor: 1    # exponential backoff between retries (1s, 2s, 4s)
+  use_cloudscraper: true  # use cloudscraper for Cloudflare bypass (Fandom, RoyalRoad)
+
+# ---------------------------------------------------------------------------
+# File paths
+# ---------------------------------------------------------------------------
+paths:
+  raw_dir: data/raw
+  state_path: data/scrape_state.json
+  cookies_path: data/cookies.json
+
+# ---------------------------------------------------------------------------
+# Scheduler settings (used by scheduler.py)
+# ---------------------------------------------------------------------------
+schedule:
+  interval_hours: 24   # how often scheduler.py re-runs the scraper
+  update_check: true   # always run --update-check in scheduled mode
+  interleave: true     # always run --interleave in scheduled mode
+  respect_robots: true # honour robots.txt in scheduled mode
+  auto_build: false    # set to true to auto-run build_dataset.py after each scrape
+
+# ---------------------------------------------------------------------------
+# Crawl sources
+# Structure per source:
+#   display_name: human-readable label
+#   extractor:    fandom | mediawiki | lexicanum | ao3 | royalroad | syosetu | generic
+#   language:     en | ja
+#   tags:         list of strings used in dataset metadata
+#   urls:         list of URLs to scrape (leave empty [] for sampled sources)
+#   min_delay:    (optional) override global http.min_delay for this source
+#   max_delay:    (optional) override global http.max_delay for this source
+#   sample_strategy: ao3 | royalroad | syosetu  (for dynamically sampled sources)
+#   sample_tags:  tags passed to the sampler
+#   sample_count: how many works to sample
+# ---------------------------------------------------------------------------
+sources:
+
+  # ---------- TRPG CATEGORY ----------
+  trpg:
+
+    pathfinder:
+      display_name: "Pathfinder Wiki"
+      extractor: mediawiki
+      language: en
+      tags: [fantasy, pathfinder]
+      urls:
+        - https://pathfinderwiki.com/wiki/Golarion
+        - https://pathfinderwiki.com/wiki/Pathfinder_Society
+
+    warhammer_fantasy:
+      display_name: "Warhammer Fantasy (Lexicanum)"
+      extractor: lexicanum
+      language: en
+      tags: [dark_fantasy, warhammer]
+      urls:
+        - https://whfb.lexicanum.com/wiki/The_Empire
+        - https://whfb.lexicanum.com/wiki/Chaos_(Warhammer)
+
+    wh40k:
+      display_name: "Warhammer 40,000 (Lexicanum)"
+      extractor: lexicanum
+      language: en
+      tags: [scifi, grimdark, warhammer40k]
+      urls:
+        - https://wh40k.lexicanum.com/wiki/Imperium_of_Man
+        - https://wh40k.lexicanum.com/wiki/Chaos
+
+    shadowrun:
+      display_name: "Shadowrun Wiki"
+      extractor: fandom
+      language: en
+      tags: [cyberpunk, fantasy, shadowrun]
+      urls:
+        - https://shadowrun.fandom.com/wiki/Sixth_World
+        - https://shadowrun.fandom.com/wiki/Seattle_metroplex
+
+    world_of_darkness:
+      display_name: "World of Darkness"
+      extractor: fandom
+      language: en
+      tags: [horror, gothic, world_of_darkness]
+      urls:
+        - https://whitewolf.fandom.com/wiki/World_of_Darkness
+        - https://whitewolf.fandom.com/wiki/Vampire:_The_Masquerade
+
+    call_of_cthulhu:
+      display_name: "Call of Cthulhu / Lovecraft"
+      extractor: fandom
+      language: en
+      tags: [horror, cosmic, lovecraft]
+      urls:
+        - https://lovecraft.fandom.com/wiki/Cthulhu_Mythos
+        - https://lovecraft.fandom.com/wiki/Arkham
+
+    iron_kingdoms:
+      display_name: "Iron Kingdoms"
+      extractor: fandom
+      language: en
+      tags: [steampunk, fantasy, iron_kingdoms]
+      urls:
+        - https://ironkingdoms.fandom.com/wiki/Iron_Kingdoms
+        - https://ironkingdoms.fandom.com/wiki/Western_Immoren
+
+    blades_in_the_dark:
+      display_name: "Blades in the Dark"
+      extractor: generic
+      language: en
+      tags: [steampunk, heist, blades_in_the_dark]
+      urls:
+        - https://bladesinthedark.com/doskvol
+        - https://bladesinthedark.com/streets-doskvol
+
+    l5r:
+      display_name: "Legend of the Five Rings"
+      extractor: fandom
+      language: en
+      tags: [wuxia, eastern_fantasy, l5r]
+      urls:
+        - https://l5r.fandom.com/wiki/Rokugan
+        - https://l5r.fandom.com/wiki/Great_Clans
+
+    deadlands:
+      display_name: "Deadlands"
+      extractor: generic
+      language: en
+      tags: [western, horror, deadlands]
+      urls:
+        - https://peginc.com/savage-settings/deadlands/
+
+    mutant_year_zero:
+      display_name: "Mutant: Year Zero"
+      extractor: fandom
+      language: en
+      tags: [post_apocalyptic, scifi, mutant]
+      urls:
+        - https://mutant.fandom.com/wiki/Mutant:_Year_Zero
+
+    gloomhaven:
+      display_name: "Gloomhaven"
+      extractor: fandom
+      language: en
+      tags: [dungeon_crawler, fantasy, gloomhaven]
+      urls:
+        - https://gloomhaven.fandom.com/wiki/Gloomhaven
+
+  # ---------- WEBNOVEL CATEGORY ----------
+  webnovel:
+
+    ao3_fantasy:
+      display_name: "Archive of Our Own"
+      extractor: ao3
+      language: en
+      tags: [fanfic, original, fantasy, en]
+      sample_strategy: ao3
+      sample_tags: [Fantasy, "Science Fiction"]
+      sample_count: 30
+      min_delay: 8.0    # AO3 guidelines ask for respectful pacing
+      max_delay: 15.0
+      urls: []          # populated dynamically by sample_ao3()
+
+    royalroad_litrpg:
+      display_name: "Royal Road"
+      extractor: royalroad
+      language: en
+      tags: [litrpg, progression, fantasy, en]
+      sample_strategy: royalroad
+      sample_tags: [litrpg]
+      sample_count: 20
+      min_delay: 5.0    # behind Cloudflare; slower = fewer challenges
+      max_delay: 10.0
+      urls: []          # populated dynamically by sample_royalroad()
+
+    syosetu_isekai:
+      display_name: "小説家になろう (Syosetu)"
+      extractor: syosetu
+      language: ja
+      tags: [isekai, fantasy, ja]
+      sample_strategy: syosetu
+      sample_count: 15
+      urls: []          # populated dynamically by sample_syosetu()
+
+    lexicanum_wh:
+      display_name: "Lexicanum (Warhammer)"
+      extractor: lexicanum
+      language: en
+      tags: [warhammer, lore, en]
+      urls:
+        - https://whfb.lexicanum.com/wiki/The_Empire
+        - https://wh40k.lexicanum.com/wiki/Imperium_of_Man
+
+    kakuyomu:
+      display_name: "カクヨム (Kakuyomu)"
+      extractor: kakuyomu
+      language: ja
+      tags: [isekai, fantasy, ja]
+      sample_strategy: kakuyomu
+      sample_count: 15
+      min_delay: 5.0
+      max_delay: 10.0
+      urls: []          # populated dynamically by sample_kakuyomu()
+
+    narou_fantasy:
+      display_name: "小説家になろう（ファンタジー）"
+      extractor: syosetu
+      language: ja
+      tags: [fantasy, ja]
+      sample_strategy: syosetu
+      sample_count: 15
+      urls: []          # populated dynamically (genre_code=101 = 異世界転生)
+
+  # ---------- ADDITIONAL TRPG SOURCES ----------
+  trpg_extra:
+
+    forgotten_realms:
+      display_name: "Forgotten Realms Wiki"
+      extractor: fandom
+      language: en
+      tags: [fantasy, dnd, forgotten_realms]
+      urls:
+        - https://forgottenrealms.fandom.com/wiki/Faer%C3%BBn
+        - https://forgottenrealms.fandom.com/wiki/Baldur%27s_Gate
+
+    dark_souls:
+      display_name: "Dark Souls Wiki"
+      extractor: fandom
+      language: en
+      tags: [dark_fantasy, soulslike, dark_souls]
+      urls:
+        - https://darksouls.fandom.com/wiki/Dark_Souls
+        - https://darksouls.fandom.com/wiki/Lordran
