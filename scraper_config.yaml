@@ -6,13 +6,17 @@
 # ---------------------------------------------------------------------------
 # Global HTTP settings
 # ---------------------------------------------------------------------------
+api:
+  google_search_key: "YOUR_GOOGLE_API_KEY" # 在此填入你的 API Key
+  google_search_cx: "YOUR_SEARCH_ENGINE_ID" # 在此填入你的 CX ID
+
 http:
-  min_delay: 2.0       # minimum seconds between requests to the same domain
-  max_delay: 5.0       # random upper bound (prevents regular timing fingerprints)
-  timeout: 15          # request timeout in seconds
-  retry_total: 3       # retries on 429/5xx
-  backoff_factor: 1    # exponential backoff between retries (1s, 2s, 4s)
-  use_cloudscraper: true  # use cloudscraper for Cloudflare bypass (Fandom, RoyalRoad)
+  min_delay: 2.0 # minimum seconds between requests to the same domain
+  max_delay: 5.0 # random upper bound (prevents regular timing fingerprints)
+  timeout: 15 # request timeout in seconds
+  retry_total: 3 # retries on 429/5xx
+  backoff_factor: 1 # exponential backoff between retries (1s, 2s, 4s)
+  use_cloudscraper: true # use cloudscraper for Cloudflare bypass (Fandom, RoyalRoad)
 
 # ---------------------------------------------------------------------------
 # File paths
@@ -26,20 +30,20 @@ paths:
 # Scheduler settings (used by scheduler.py)
 # ---------------------------------------------------------------------------
 schedule:
-  interval_hours: 24   # how often scheduler.py re-runs the scraper
-  update_check: true   # always run --update-check in scheduled mode
-  interleave: true     # always run --interleave in scheduled mode
+  interval_hours: 24 # how often scheduler.py re-runs the scraper
+  update_check: true # always run --update-check in scheduled mode
+  interleave: true # always run --interleave in scheduled mode
   respect_robots: true # honour robots.txt in scheduled mode
-  auto_build: false    # set to true to auto-run build_dataset.py after each scrape
+  auto_build: false # set to true to auto-run build_dataset.py after each scrape
+  auto_discovery: false # 是否啟動自動發現新網站 Agent
+  discovery_interval_days: 7 # 發現代理執行的週期
 
 # ---------------------------------------------------------------------------
 # Crawl sources
 # ---------------------------------------------------------------------------
 sources:
-
   # ---------- TRPG CATEGORY ----------
   trpg:
-
     pathfinder:
       display_name: "Pathfinder Wiki"
       extractor: mediawiki
@@ -191,7 +195,6 @@ sources:
 
   # ---------- WEBNOVEL CATEGORY ----------
   webnovel:
-
     ao3_fantasy:
       display_name: "Archive of Our Own"
       extractor: ao3
@@ -238,7 +241,7 @@ sources:
 
     hameln_fanfic:
       display_name: "ハーメルン (Hameln)"
-      extractor: syosetu  # Hameln uses similar structure to Syosetu
+      extractor: syosetu # Hameln uses similar structure to Syosetu
       language: ja
       tags: [fanfic, isekai, ja]
       sample_strategy: hameln
@@ -271,7 +274,6 @@ sources:
 
   # ---------- FAN CREATIONS & HOMEBREW ----------
   fan_creation:
-
     scp_foundation:
       display_name: "SCP Foundation"
       extractor: generic
@@ -318,17 +320,16 @@ sources:
 
   # ---------- MULTILINGUAL LORE (NON-ENGLISH) ----------
   multilingual_lore:
-
     moegirl_pedia:
       display_name: "萌娘百科 (Moegirlpedia)"
       extractor: mediawiki
       language: zh
       tags: [anime, manga, game, zh]
       urls:
-        - https://zh.moegirl.org.cn/%E5%8E%9F%E7%A5%9E  # Genshin Impact
-        - https://zh.moegirl.org.cn/%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F  # Arknights
-        - https://zh.moegirl.org.cn/%E6%98%9F%E9%穹%E9%81%93%E9%93%81  # Honkai Star Rail
-        - https://zh.moegirl.org.cn/%E5%9C%A3%E6%9D%AF%E6%88%98%E4%BA%89  # Holy Grail War
+        - https://zh.moegirl.org.cn/%E5%8E%9F%E7%A5%9E # Genshin Impact
+        - https://zh.moegirl.org.cn/%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F # Arknights
+        - https://zh.moegirl.org.cn/%E6%98%9F%E9%穹%E9%81%93%E9%93%81 # Honkai Star Rail
+        - https://zh.moegirl.org.cn/%E5%9C%A3%E6%9D%AF%E6%88%98%E4%BA%89 # Holy Grail War
 
     one_piece_cn:
       display_name: "航海王维基 (One Piece CN)"
@@ -391,7 +392,6 @@ sources:
 
   # ---------- ADDITIONAL LORE SOURCES ----------
   extra_lore:
-
     critical_role:
       display_name: "Critical Role (Exandria)"
       extractor: fandom
