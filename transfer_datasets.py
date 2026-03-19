@@ -56,6 +56,7 @@ _FILENAME_TYPE_MAP: dict[str, str] = {
     "lora_storyteller":  "lora_storyteller",
     "lora_analyst":      "lora_analyst",
     "lora_translator":   "lora_translator",
+    "lora_reasoning":    "lora_reasoning",
     "rpg_dataset":       "rpg_dataset",
     "literature_dataset":"literature_dataset",
 }

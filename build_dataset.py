@@ -499,6 +499,7 @@ def build_records_from_source(
     dataset_type: str,
     min_words: int,
     global_seen: Optional[set] = None,
+    max_words: int = 350,
 ) -> list[dict]:
     """Process one raw source file into a list of JSONL records.
 
@@ -506,6 +507,10 @@ def build_records_from_source(
     exact deduplication. Pass the same set instance when processing multiple
     sources to avoid identical chunks appearing more than once in the JSONL.
     Within-source near-duplicate removal (Jaccard) still runs first.
+
+    max_words: upper bound on words per chunk. Default 350 (~455 tokens) keeps
+    total sequence length well within max_seq_len=1024 when combined with the
+    Alpaca instruction and formatting overhead (~80-120 tokens).
     """
     text = source["text"]
     metadata = source["metadata"]
@@ -515,7 +520,7 @@ def build_records_from_source(
     seed_str = metadata.get("source_id", "") + metadata.get("url", "")
     rng = random.Random(hashlib.md5(seed_str.encode()).hexdigest())
 
-    chunks = split_into_chunks(text, min_words=min_words, max_words=500)
+    chunks = split_into_chunks(text, min_words=min_words, max_words=max_words)
     chunks = [c for c in chunks if is_quality_chunk(c, language)]
     # Within-source near-duplicate removal (Jaccard similarity)
     chunks = deduplicate_chunks(chunks)
@@ -566,6 +571,14 @@ def main() -> None:
     parser.add_argument(
         "--min-words", type=int, default=80,
         help="Minimum words per chunk (default: 80)."
+    )
+    parser.add_argument(
+        "--max-words", type=int, default=350,
+        help=(
+            "Maximum words per chunk (default: 350). "
+            "At ~1.3 tokens/word this keeps output ≤ 455 tokens, "
+            "leaving headroom for instruction + formatting within max_seq_len=1024."
+        ),
     )
     parser.add_argument(
         "--raw-dir", default="data/raw",
@@ -622,7 +635,7 @@ def main() -> None:
     if "rpg" in datasets_to_build:
         log.info(f"Building RPG dataset from {len(trpg_sources)} TRPG sources...")
         for source in trpg_sources:
-            records = build_records_from_source(source, "rpg", args.min_words, rpg_global_seen)
+            records = build_records_from_source(source, "rpg", args.min_words, rpg_global_seen, args.max_words)
             rpg_records.extend(records)
             log.info(
                 f"  {source['metadata'].get('source_id','')} "
@@ -633,7 +646,7 @@ def main() -> None:
     if "literature" in datasets_to_build:
         log.info(f"Building literature dataset from {len(webnovel_sources)} webnovel sources...")
         for source in webnovel_sources:
-            records = build_records_from_source(source, "literature", args.min_words, lit_global_seen)
+            records = build_records_from_source(source, "literature", args.min_words, lit_global_seen, args.max_words)
             literature_records.extend(records)
             log.info(
                 f"  {source['metadata'].get('source_id','')} "

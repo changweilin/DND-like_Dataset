@@ -13,6 +13,7 @@ targets:
   lora_storyteller: "C:/Users/user/Documents/Python/DND-like_Model/datasets/lora_storyteller" # 故事接龍 LoRA — 例如 "D:/lora_datasets/storyteller"
   lora_analyst: "C:/Users/user/Documents/Python/DND-like_Model/datasets/lora_analyst" # NER+情緒判讀 LoRA — 例如 "D:/lora_datasets/analyst"
   lora_translator: "C:/Users/user/Documents/Python/DND-like_Model/datasets/lora_translator" # 翻譯 LoRA — 例如 "D:/lora_datasets/translator"
+  lora_reasoning: "C:/Users/user/Documents/Python/DND-like_Model/datasets/lora_reasoning" # 語意推理 LoRA (Task C) — 例如 "D:/lora_datasets/reasoning"
 
   # --- Alpaca 格式 (build_dataset.py 產生) ---
   rpg_dataset: "C:/Users/user/Documents/Python/DND-like_Model/datasets/rpg_dataset" # RPG 世界觀資料集 — 例如 "D:/lora_datasets/rpg"
