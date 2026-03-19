@@ -1,0 +1,55 @@
+# transfer_config.yaml
+# 資料集自動搬移設定檔
+# 請在下方 [targets] 填入每種資料集的搬移目標路徑。
+# 路徑可以是絕對路徑或相對路徑（相對於本專案根目錄）。
+# 留空字串 "" 代表「跳過此類型，不搬移」。
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# 搬移目標路徑 — 請填寫每種資料集的目的地資料夾
+# ---------------------------------------------------------------------------
+targets:
+  # --- ShareGPT 格式 (convert_to_sharegpt.py 產生) ---
+  lora_storyteller: "C:/Users/user/Documents/Python/DND-like_Model/datasets/lora_storyteller" # 故事接龍 LoRA — 例如 "D:/lora_datasets/storyteller"
+  lora_analyst: "C:/Users/user/Documents/Python/DND-like_Model/datasets/lora_analyst" # NER+情緒判讀 LoRA — 例如 "D:/lora_datasets/analyst"
+  lora_translator: "C:/Users/user/Documents/Python/DND-like_Model/datasets/lora_translator" # 翻譯 LoRA — 例如 "D:/lora_datasets/translator"
+
+  # --- Alpaca 格式 (build_dataset.py 產生) ---
+  rpg_dataset: "C:/Users/user/Documents/Python/DND-like_Model/datasets/rpg_dataset" # RPG 世界觀資料集 — 例如 "D:/lora_datasets/rpg"
+  literature_dataset: "C:/Users/user/Documents/Python/DND-like_Model/datasets/literature_dataset" # 文學/網路小說資料集 — 例如 "D:/lora_datasets/literature"
+
+  # --- 其他 / 自訂規則 (unknown 類型的 JSONL 統一搬到這裡) ---
+  unknown: "" # 未識別格式資料集，留空則原地保留
+
+# ---------------------------------------------------------------------------
+# 監控的來源資料夾（腳本會掃描這些目錄下的所有 .jsonl 檔）
+# ---------------------------------------------------------------------------
+sources:
+  - data/finetune/sharegpt # convert_to_sharegpt.py 的輸出目錄
+  - data/finetune # build_dataset.py 的輸出目錄（不遞迴，只掃頂層）
+
+# ---------------------------------------------------------------------------
+# 搬移行為設定
+# ---------------------------------------------------------------------------
+transfer:
+  # 執行模式：
+  #   "copy"  — 複製檔案，原始檔保留（安全，適合備份到訓練機器）
+  #   "move"  — 移動檔案，原始檔刪除（適合釋放本機空間）
+  mode: copy
+
+  # 目標端已有同名檔案時的處理方式：
+  #   false — 跳過（不覆蓋），僅記錄警告
+  #   true  — 覆蓋（以新版本取代舊版本）
+  overwrite: false
+
+  # 定期排程間隔（小時）。
+  # 僅在以 --loop 模式執行時生效。
+  interval_hours: 6
+
+  # 搬移後是否驗證目標檔案的 MD5 與來源一致（建議開啟）
+  verify_checksum: true
+
+# ---------------------------------------------------------------------------
+# 狀態追蹤檔路徑（記錄已搬移/未搬移的清單）
+# ---------------------------------------------------------------------------
+state_file: data/transfer_state.json
