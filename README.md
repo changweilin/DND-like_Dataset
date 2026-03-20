@@ -36,7 +36,7 @@ graph TD
 本專案提供了三種強大的自動化管理工具，可用於簡化資料集的生命週期維護：
 
 ### 1. `pipeline.py` (一鍵端到端工作流)
-設計用來順序執行核心的資料處理流程：**抓取 (Scrape)** -> **建置 (Build)** -> **驗證 (Validate)** -> **輸出 (Export)**。
+設計用來順序執行核心的資料處理流程：**抓取 (Scrape)** -> **建置 (Build)** -> **驗證 (Validate)** -> **後處理 (Postprocess, 可選)** -> **輸出 (Export, 可選)**。
 
 **用法範例：**
 - 執行完整標準流程：`python pipeline.py`
@@ -44,6 +44,8 @@ graph TD
 - 只更新抓取新資料，不重新建置資料集：`python pipeline.py --skip-build`
 - 僅針對特定分類（例如 `trpg`）執行管線：`python pipeline.py --category trpg`
 - 以 Fail-Fast 模式執行（遇到錯誤立刻中止）：`python pipeline.py --fail-fast`
+- 在驗證後執行 RL 後處理：`python pipeline.py --postprocess`
+- 僅執行 RL 後處理（跳過前置步驟）：`python pipeline.py --skip-scrape --skip-build --postprocess`
 
 ### 2. `scheduler.py` (自動排程抓取與建置)
 根據 `scraper_config.yaml` 內的設定，定期執行網路爬蟲（可設定同時啟動資料建置），非常適合放置於伺服器以 24 小時運作來持續更新知識庫。
@@ -90,3 +92,20 @@ schedule:
 4. **驗證資料品質**:
    `python validate_dataset.py`
    可讀取生成的資料集，對文字長度、中英佔比等品質指標進行靜態分析並輸出報告，協助在實際訓練前排除無效資料。
+
+5. **RL 訓練數據後處理 (postprocess_rl.py)**:
+   `python postprocess_rl.py`
+   對 ShareGPT 數據集進行清洗、過濾、格式轉換，為 GRPO/DPO 訓練做準備。結果輸出至 `data/finetune/sharegpt/cleaned/`。
+
+   | 指令 | 說明 |
+   |------|------|
+   | `python postprocess_rl.py` | 處理全部四個資料集 |
+   | `python postprocess_rl.py --task analyst` | 只處理 NER 實體清洗 |
+   | `python postprocess_rl.py --task translator` | 只過濾超長翻譯記錄 |
+   | `python postprocess_rl.py --task storyteller` | 只準備 DPO 偏好對格式 |
+   | `python postprocess_rl.py --task reasoning` | 只標準化 JSON key |
+   | `python postprocess_rl.py --stats` | 僅顯示統計，不寫入檔案 |
+   | `python postprocess_rl.py --report report.md` | 輸出 markdown 處理報告 |
+   | `python postprocess_rl.py --max-tokens 900` | 自訂 translator token 上限（預設 900）|
+
+   也可整合進 pipeline：`python pipeline.py --skip-scrape --skip-build --postprocess`

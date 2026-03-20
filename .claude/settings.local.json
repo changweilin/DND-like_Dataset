@@ -16,7 +16,10 @@
       "Bash(python transfer_datasets.py --status)",
       "Bash(python transfer_datasets.py --dry-run)",
       "Bash(python transfer_datasets.py --reset data/finetune/sharegpt/lora_analyst.jsonl)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(python -c \"import sys,json; [print\\(json.dumps\\(json.loads\\(l\\),ensure_ascii=False,indent=2\\)[:800]\\) for l in sys.stdin if l.strip\\(\\)]\")",
+      "Bash(python:*)",
+      "Bash(pip install:*)"
     ]
   }
 }

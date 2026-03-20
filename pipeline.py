@@ -5,13 +5,15 @@ Runs the full workflow in sequence:
   1. scraper.py      — fetch / update raw text files
   2. build_dataset.py — build Alpaca-format JSONL from raw text
   3. validate_dataset.py — print quality report
-  4. export_hf.py    — (optional) export train/val splits
+  4. postprocess_rl.py — (optional) RL post-processing: clean/filter/convert
+  5. export_hf.py    — (optional) export train/val splits
 
 Usage:
     python pipeline.py                    # full pipeline
     python pipeline.py --skip-scrape      # skip scraping, only build+validate
     python pipeline.py --skip-build       # only scrape (no build/validate)
     python pipeline.py --export           # also run export_hf.py at the end
+    python pipeline.py --postprocess      # run postprocess_rl.py after validate
     python pipeline.py --category trpg   # limit scrape+build to trpg category
     python pipeline.py --fresh            # pass --fresh to build_dataset.py
     python pipeline.py --dry-run          # dry-run all steps (no writes)
@@ -101,6 +103,13 @@ def _validate_cmd(args: argparse.Namespace) -> list[str]:
     return cmd
 
 
+def _postprocess_cmd(args: argparse.Namespace) -> list[str]:
+    cmd = [sys.executable, "postprocess_rl.py"]
+    if args.dry_run:
+        cmd.append("--stats")
+    return cmd
+
+
 def _export_cmd(args: argparse.Namespace) -> list[str]:
     cmd = [sys.executable, "export_hf.py"]
     if args.category == "webnovel":
@@ -162,6 +171,10 @@ def main() -> None:
         "--no-robots", action="store_true",
         help="Skip robots.txt checks in scraper.py.",
     )
+    parser.add_argument(
+        "--postprocess", action="store_true",
+        help="Run postprocess_rl.py after validate (RL data cleaning/conversion).",
+    )
     args = parser.parse_args()
 
     results: dict[str, int] = {}
@@ -181,7 +194,13 @@ def main() -> None:
     # Step 3: Validate
     results["validate"] = run_step(_validate_cmd(args), "validate", args.fail_fast)
 
-    # Step 4 (optional): Export
+    # Step 4 (optional): RL post-processing
+    if args.postprocess:
+        results["postprocess"] = run_step(
+            _postprocess_cmd(args), "postprocess", args.fail_fast
+        )
+
+    # Step 5 (optional): Export
     if args.export:
         results["export"] = run_step(_export_cmd(args), "export", args.fail_fast)
 
