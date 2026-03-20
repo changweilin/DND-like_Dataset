@@ -7,13 +7,14 @@ Runs the full workflow in sequence:
   3. validate_dataset.py — print quality report
   4. postprocess_rl.py — (optional) RL post-processing: clean/filter/convert
   5. export_hf.py    — (optional) export train/val splits
-
+  6. transfer_datasets.py — (optional) transfer to model project
 Usage:
     python pipeline.py                    # full pipeline
     python pipeline.py --skip-scrape      # skip scraping, only build+validate
     python pipeline.py --skip-build       # only scrape (no build/validate)
     python pipeline.py --export           # also run export_hf.py at the end
     python pipeline.py --postprocess      # run postprocess_rl.py after validate
+    python pipeline.py --transfer         # run transfer_datasets.py (asks for confirmation)
     python pipeline.py --category trpg   # limit scrape+build to trpg category
     python pipeline.py --fresh            # pass --fresh to build_dataset.py
     python pipeline.py --dry-run          # dry-run all steps (no writes)
@@ -119,6 +120,13 @@ def _export_cmd(args: argparse.Namespace) -> list[str]:
     return cmd
 
 
+def _transfer_cmd(args: argparse.Namespace) -> list[str]:
+    cmd = [sys.executable, "transfer_datasets.py"]
+    if args.dry_run:
+        cmd.append("--dry-run")
+    return cmd
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -175,6 +183,10 @@ def main() -> None:
         "--postprocess", action="store_true",
         help="Run postprocess_rl.py after validate (RL data cleaning/conversion).",
     )
+    parser.add_argument(
+        "--transfer", action="store_true",
+        help="Run transfer_datasets.py as the final step (asks for confirmation).",
+    )
     args = parser.parse_args()
 
     results: dict[str, int] = {}
@@ -203,6 +215,17 @@ def main() -> None:
     # Step 5 (optional): Export
     if args.export:
         results["export"] = run_step(_export_cmd(args), "export", args.fail_fast)
+
+    # Step 6 (optional): Transfer
+    if args.transfer:
+        print("\n" + "=" * 60)
+        print("CONFIRMATION REQUIRED")
+        print("=" * 60)
+        yn = input("Do you want to run transfer_datasets.py to sync data to the model project? (y/n): ")
+        if yn.lower() in ["y", "yes"]:
+            results["transfer"] = run_step(_transfer_cmd(args), "transfer", args.fail_fast)
+        else:
+            log.info("Transfer step skipped by user.")
 
     _print_summary(results)
 

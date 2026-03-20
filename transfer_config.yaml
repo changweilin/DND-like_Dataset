@@ -10,20 +10,20 @@
 # ---------------------------------------------------------------------------
 targets:
   # --- ShareGPT 格式 (convert_to_sharegpt.py 產生) ---
-  lora_storyteller: "C:/Users/user/Documents/Python/DND-like_Model/dataset/lora_storyteller" # 故事接龍 LoRA — 例如 "D:/lora_datasets/storyteller"
-  lora_analyst: "C:/Users/user/Documents/Python/DND-like_Model/dataset/lora_analyst" # NER+情緒判讀 LoRA — 例如 "D:/lora_datasets/analyst"
-  lora_translator: "C:/Users/user/Documents/Python/DND-like_Model/dataset/lora_translator" # 翻譯 LoRA — 例如 "D:/lora_datasets/translator"
-  lora_reasoning: "C:/Users/user/Documents/Python/DND-like_Model/dataset/lora_reasoning" # 語意推理 LoRA (Task C) — 例如 "D:/lora_datasets/reasoning"
+  lora_storyteller: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/lora_storyteller" # 故事接龍 LoRA — 例如 "D:/lora_datasets/storyteller"
+  lora_analyst: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/lora_analyst" # NER+情緒判讀 LoRA — 例如 "D:/lora_datasets/analyst"
+  lora_translator: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/lora_translator" # 翻譯 LoRA — 例如 "D:/lora_datasets/translator"
+  lora_reasoning: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/lora_reasoning" # 語意推理 LoRA (Task C) — 例如 "D:/lora_datasets/reasoning"
 
   # --- Alpaca 格式 (build_dataset.py 產生) ---
-  rpg_dataset: "C:/Users/user/Documents/Python/DND-like_Model/dataset/rpg_dataset" # RPG 世界觀資料集 — 例如 "D:/lora_datasets/rpg"
-  literature_dataset: "C:/Users/user/Documents/Python/DND-like_Model/dataset/literature_dataset" # 文學/網路小說資料集 — 例如 "D:/lora_datasets/literature"
+  rpg_dataset: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/rpg_dataset" # RPG 世界觀資料集 — 例如 "D:/lora_datasets/rpg"
+  literature_dataset: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/literature_dataset" # 文學/網路小說資料集 — 例如 "D:/lora_datasets/literature"
 
   # --- RL 後處理輸出 (postprocess_rl.py 產生，位於 sharegpt/cleaned/) ---
-  lora_analyst_cleaned: "C:/Users/user/Documents/Python/DND-like_Model/dataset/lora_analyst_cleaned" # 清洗後 NER+sentiment
-  lora_translator_cleaned: "C:/Users/user/Documents/Python/DND-like_Model/dataset/lora_translator_cleaned" # 過濾超長記錄
-  lora_storyteller_dpo: "C:/Users/user/Documents/Python/DND-like_Model/dataset/lora_storyteller_dpo" # DPO 偏好對格式
-  lora_reasoning_cleaned: "C:/Users/user/Documents/Python/DND-like_Model/dataset/lora_reasoning_cleaned" # JSON key 標準化
+  lora_analyst_cleaned: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/lora_analyst_cleaned" # 清洗後 NER+sentiment
+  lora_translator_cleaned: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/lora_translator_cleaned" # 過濾超長記錄
+  lora_storyteller_dpo: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/lora_storyteller_dpo" # DPO 偏好對格式
+  lora_reasoning_cleaned: "C:/Users/user/Documents/Python/DND-like_Plan/DND-like_Model/dataset/lora_reasoning_cleaned" # JSON key 標準化
 
   # --- 其他 / 自訂規則 (unknown 類型的 JSONL 統一搬到這裡) ---
   unknown: "" # 未識別格式資料集，留空則原地保留

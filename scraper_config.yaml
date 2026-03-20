@@ -50,15 +50,15 @@ sources:
       language: en
       tags: [fantasy, pathfinder, pathfinder_2e]
       urls:
-        - https://pathfinderwiki.com/wiki/Golarion
-        - https://pathfinderwiki.com/wiki/Pathfinder_Society
-        - https://pathfinderwiki.com/wiki/Absalom
-        - https://pathfinderwiki.com/wiki/Cheliax
-        - https://pathfinderwiki.com/wiki/Desna
-        - https://pathfinderwiki.com/wiki/Sarenrae
-        - https://pathfinderwiki.com/wiki/Pharasma
-        - https://pathfinderwiki.com/wiki/Varisia
-        - https://pathfinderwiki.com/wiki/Lost_Omens
+      - https://pathfinderwiki.com/wiki/Golarion
+      - https://pathfinderwiki.com/wiki/Pathfinder_Society
+      - https://pathfinderwiki.com/wiki/Absalom
+      - https://pathfinderwiki.com/wiki/Cheliax
+      - https://pathfinderwiki.com/wiki/Desna
+      - https://pathfinderwiki.com/wiki/Sarenrae
+      - https://pathfinderwiki.com/wiki/Pharasma
+      - https://pathfinderwiki.com/wiki/Varisia
+      - https://pathfinderwiki.com/wiki/Lost_Omens
 
     warhammer_fantasy:
       display_name: "Warhammer Fantasy (Lexicanum)"
@@ -66,15 +66,15 @@ sources:
       language: en
       tags: [dark_fantasy, warhammer, whfb]
       urls:
-        - https://whfb.lexicanum.com/wiki/The_Empire
-        - https://whfb.lexicanum.com/wiki/Chaos_(Warhammer)
-        - https://whfb.lexicanum.com/wiki/Bretonnia
-        - https://whfb.lexicanum.com/wiki/Dwarfs
-        - https://whfb.lexicanum.com/wiki/High_Elves
-        - https://whfb.lexicanum.com/wiki/Sigmar
-        - https://whfb.lexicanum.com/wiki/Vampire_Counts
-        - https://whfb.lexicanum.com/wiki/Skaven
-        - https://whfb.lexicanum.com/wiki/Old_World
+      - https://whfb.lexicanum.com/wiki/The_Empire
+      - https://whfb.lexicanum.com/wiki/Chaos_(Warhammer)
+      - https://whfb.lexicanum.com/wiki/Bretonnia
+      - https://whfb.lexicanum.com/wiki/Dwarfs
+      - https://whfb.lexicanum.com/wiki/High_Elves
+      - https://whfb.lexicanum.com/wiki/Sigmar
+      - https://whfb.lexicanum.com/wiki/Vampire_Counts
+      - https://whfb.lexicanum.com/wiki/Skaven
+      - https://whfb.lexicanum.com/wiki/Old_World
 
     wh40k:
       display_name: "Warhammer 40,000 (Lexicanum)"
@@ -82,15 +82,15 @@ sources:
       language: en
       tags: [scifi, grimdark, warhammer40k]
       urls:
-        - https://wh40k.lexicanum.com/wiki/Imperium_of_Man
-        - https://wh40k.lexicanum.com/wiki/Chaos
-        - https://wh40k.lexicanum.com/wiki/Eldar
-        - https://wh40k.lexicanum.com/wiki/Orks
-        - https://wh40k.lexicanum.com/wiki/Tyranids
-        - https://wh40k.lexicanum.com/wiki/Space_Marines
-        - https://wh40k.lexicanum.com/wiki/Emperor_of_Mankind
-        - https://wh40k.lexicanum.com/wiki/Horus_Heresy
-        - https://wh40k.lexicanum.com/wiki/Necrons
+      - https://wh40k.lexicanum.com/wiki/Imperium_of_Man
+      - https://wh40k.lexicanum.com/wiki/Chaos
+      - https://wh40k.lexicanum.com/wiki/Eldar
+      - https://wh40k.lexicanum.com/wiki/Orks
+      - https://wh40k.lexicanum.com/wiki/Tyranids
+      - https://wh40k.lexicanum.com/wiki/Space_Marines
+      - https://wh40k.lexicanum.com/wiki/Emperor_of_Mankind
+      - https://wh40k.lexicanum.com/wiki/Horus_Heresy
+      - https://wh40k.lexicanum.com/wiki/Necrons
 
     shadowrun:
       display_name: "Shadowrun Wiki"
@@ -98,12 +98,12 @@ sources:
       language: en
       tags: [cyberpunk, fantasy, shadowrun]
       urls:
-        - https://shadowrun.fandom.com/wiki/Sixth_World
-        - https://shadowrun.fandom.com/wiki/Seattle_metroplex
-        - https://shadowrun.fandom.com/wiki/Magic
-        - https://shadowrun.fandom.com/wiki/Matrix
-        - https://shadowrun.fandom.com/wiki/Great_Dragons
-        - https://shadowrun.fandom.com/wiki/Metahumanity
+      - https://shadowrun.fandom.com/wiki/Sixth_World
+      - https://shadowrun.fandom.com/wiki/Seattle_metroplex
+      - https://shadowrun.fandom.com/wiki/Magic
+      - https://shadowrun.fandom.com/wiki/Matrix
+      - https://shadowrun.fandom.com/wiki/Great_Dragons
+      - https://shadowrun.fandom.com/wiki/Metahumanity
 
     world_of_darkness:
       display_name: "World of Darkness"
@@ -111,12 +111,12 @@ sources:
       language: en
       tags: [horror, gothic, world_of_darkness]
       urls:
-        - https://whitewolf.fandom.com/wiki/World_of_Darkness
-        - https://whitewolf.fandom.com/wiki/Vampire:_The_Masquerade
-        - https://whitewolf.fandom.com/wiki/Werewolf:_The_Apocalypse
-        - https://whitewolf.fandom.com/wiki/Mage:_The_Ascension
-        - https://whitewolf.fandom.com/wiki/Kindred
-        - https://whitewolf.fandom.com/wiki/Caine
+      - https://whitewolf.fandom.com/wiki/World_of_Darkness
+      - https://whitewolf.fandom.com/wiki/Vampire:_The_Masquerade
+      - https://whitewolf.fandom.com/wiki/Werewolf:_The_Apocalypse
+      - https://whitewolf.fandom.com/wiki/Mage:_The_Ascension
+      - https://whitewolf.fandom.com/wiki/Kindred
+      - https://whitewolf.fandom.com/wiki/Caine
 
     call_of_cthulhu:
       display_name: "Call of Cthulhu / Lovecraft"
@@ -124,12 +124,12 @@ sources:
       language: en
       tags: [horror, cosmic, lovecraft]
       urls:
-        - https://lovecraft.fandom.com/wiki/Cthulhu_Mythos
-        - https://lovecraft.fandom.com/wiki/Arkham
-        - https://lovecraft.fandom.com/wiki/Necronomicon
-        - https://lovecraft.fandom.com/wiki/Great_Old_One
-        - https://lovecraft.fandom.com/wiki/Yog-Sothoth
-        - https://lovecraft.fandom.com/wiki/Hastur
+      - https://lovecraft.fandom.com/wiki/Cthulhu_Mythos
+      - https://lovecraft.fandom.com/wiki/Arkham
+      - https://lovecraft.fandom.com/wiki/Necronomicon
+      - https://lovecraft.fandom.com/wiki/Great_Old_One
+      - https://lovecraft.fandom.com/wiki/Yog-Sothoth
+      - https://lovecraft.fandom.com/wiki/Hastur
 
     forgotten_realms:
       display_name: "Forgotten Realms Wiki"
@@ -137,13 +137,13 @@ sources:
       language: en
       tags: [fantasy, dnd, forgotten_realms]
       urls:
-        - https://forgottenrealms.fandom.com/wiki/Faer%C3%BBn
-        - https://forgottenrealms.fandom.com/wiki/Baldur%27s_Gate
-        - https://forgottenrealms.fandom.com/wiki/Waterdeep
-        - https://forgottenrealms.fandom.com/wiki/Neverwinter
-        - https://forgottenrealms.fandom.com/wiki/Drizzt_Do%27Urden
-        - https://forgottenrealms.fandom.com/wiki/Mystra
-        - https://forgottenrealms.fandom.com/wiki/D&D_Lore
+      - https://forgottenrealms.fandom.com/wiki/Faer%C3%BBn
+      - https://forgottenrealms.fandom.com/wiki/Baldur%27s_Gate
+      - https://forgottenrealms.fandom.com/wiki/Waterdeep
+      - https://forgottenrealms.fandom.com/wiki/Neverwinter
+      - https://forgottenrealms.fandom.com/wiki/Drizzt_Do%27Urden
+      - https://forgottenrealms.fandom.com/wiki/Mystra
+      - https://forgottenrealms.fandom.com/wiki/D&D_Lore
 
     eberron:
       display_name: "Eberron Wiki"
@@ -151,12 +151,12 @@ sources:
       language: en
       tags: [fantasy, steampunk, eberron, dnd]
       urls:
-        - https://eberron.fandom.com/wiki/Eberron
-        - https://eberron.fandom.com/wiki/Sharn
-        - https://eberron.fandom.com/wiki/Khorvaire
-        - https://eberron.fandom.com/wiki/Warforged
-        - https://eberron.fandom.com/wiki/Dragonmarks
-        - https://eberron.fandom.com/wiki/The_Last_War
+      - https://eberron.fandom.com/wiki/Eberron
+      - https://eberron.fandom.com/wiki/Sharn
+      - https://eberron.fandom.com/wiki/Khorvaire
+      - https://eberron.fandom.com/wiki/Warforged
+      - https://eberron.fandom.com/wiki/Dragonmarks
+      - https://eberron.fandom.com/wiki/The_Last_War
 
     dragonlance:
       display_name: "Dragonlance Wiki"
@@ -164,11 +164,11 @@ sources:
       language: en
       tags: [fantasy, dragonlance, dnd]
       urls:
-        - https://dragonlance.fandom.com/wiki/Krynn
-        - https://dragonlance.fandom.com/wiki/Ansalon
-        - https://dragonlance.fandom.com/wiki/War_of_the_Lance
-        - https://dragonlance.fandom.com/wiki/Raistlin_Majere
-        - https://dragonlance.fandom.com/wiki/Solamnic_Knights
+      - https://dragonlance.fandom.com/wiki/Krynn
+      - https://dragonlance.fandom.com/wiki/Ansalon
+      - https://dragonlance.fandom.com/wiki/War_of_the_Lance
+      - https://dragonlance.fandom.com/wiki/Raistlin_Majere
+      - https://dragonlance.fandom.com/wiki/Solamnic_Knights
 
     gurps:
       display_name: "GURPS Wiki"
@@ -176,10 +176,10 @@ sources:
       language: en
       tags: [ttrpg, system_agnostic, gurps]
       urls:
-        - https://gurps.fandom.com/wiki/GURPS_Basic_Set
-        - https://gurps.fandom.com/wiki/Infinite_Worlds
-        - https://gurps.fandom.com/wiki/Magic_System
-        - https://gurps.fandom.com/wiki/Combat_System
+      - https://gurps.fandom.com/wiki/GURPS_Basic_Set
+      - https://gurps.fandom.com/wiki/Infinite_Worlds
+      - https://gurps.fandom.com/wiki/Magic_System
+      - https://gurps.fandom.com/wiki/Combat_System
 
     starfinder:
       display_name: "Starfinder Wiki"
@@ -187,13 +187,55 @@ sources:
       language: en
       tags: [scifi, fantasy, starfinder]
       urls:
-        - https://starfinderwiki.com/wiki/Starfinder_Roleplaying_Game
-        - https://starfinderwiki.com/wiki/Absalom_Station
-        - https://starfinderwiki.com/wiki/Pact_Worlds
-        - https://starfinderwiki.com/wiki/Drift
-        - https://starfinderwiki.com/wiki/Shirren
+      - https://starfinderwiki.com/wiki/Starfinder_Roleplaying_Game
+      - https://starfinderwiki.com/wiki/Absalom_Station
+      - https://starfinderwiki.com/wiki/Pact_Worlds
+      - https://starfinderwiki.com/wiki/Drift
+      - https://starfinderwiki.com/wiki/Shirren
 
   # ---------- WEBNOVEL CATEGORY ----------
+    pathfinder_fr:
+      display_name: Pathfinder Wiki (FR)
+      extractor: fandom
+      language: fr
+      tags:
+      - fantasy
+      - pathfinder
+      - fr
+      urls:
+      - https://pathfinder.fandom.com/fr/wiki/Golarion
+    forgotten_realms_es:
+      display_name: Forgotten Realms Wiki (ES)
+      extractor: fandom
+      language: es
+      tags:
+      - fantasy
+      - dnd
+      - forgotten_realms
+      - es
+      urls:
+      - https://forgottenrealms.fandom.com/es/wiki/Faer%C3%BBn
+    forgotten_realms_fr:
+      display_name: Forgotten Realms Wiki (FR)
+      extractor: fandom
+      language: fr
+      tags:
+      - fantasy
+      - dnd
+      - forgotten_realms
+      - fr
+      urls:
+      - https://forgottenrealms.fandom.com/fr/wiki/Faer%C3%BBn
+    warhammer_40k_de:
+      display_name: Warhammer 40k Lexicanum (DE)
+      extractor: lexicanum
+      language: de
+      tags:
+      - scifi
+      - wh40k
+      - de
+      urls:
+      - https://wh40k-de.lexicanum.com/wiki/Imperium
   webnovel:
     ao3_fantasy:
       display_name: "Archive of Our Own"
@@ -271,6 +313,62 @@ sources:
       language_id: 5
       sample_count: 20
       urls: []
+    ao3_ja_fantasy:
+      display_name: Archive of Our Own (JA)
+      extractor: ao3
+      language: ja
+      tags:
+      - fanfic
+      - fantasy
+      - ja
+      sample_strategy: ao3
+      sample_tags:
+      - Fantasy
+      language_id: ja
+      sample_count: 20
+      urls: []
+    ao3_ko_fantasy:
+      display_name: Archive of Our Own (KO)
+      extractor: ao3
+      language: ko
+      tags:
+      - fanfic
+      - fantasy
+      - ko
+      sample_strategy: ao3
+      sample_tags:
+      - Fantasy
+      language_id: ko
+      sample_count: 20
+      urls: []
+    ao3_fr_fantasy:
+      display_name: Archive of Our Own (FR)
+      extractor: ao3
+      language: fr
+      tags:
+      - fanfic
+      - fantasy
+      - fr
+      sample_strategy: ao3
+      sample_tags:
+      - Fantasy
+      language_id: fr
+      sample_count: 20
+      urls: []
+    ao3_de_fantasy:
+      display_name: Archive of Our Own (DE)
+      extractor: ao3
+      language: de
+      tags:
+      - fanfic
+      - fantasy
+      - de
+      sample_strategy: ao3
+      sample_tags:
+      - Fantasy
+      language_id: de
+      sample_count: 20
+      urls: []
 
   # ---------- FAN CREATIONS & HOMEBREW ----------
   fan_creation:
@@ -280,12 +378,12 @@ sources:
       language: en
       tags: [urban_fantasy, horror, sci_fi, collaborative]
       urls:
-        - https://scp-wiki.wikidot.com/scp-173
-        - https://scp-wiki.wikidot.com/scp-087
-        - https://scp-wiki.wikidot.com/scp-682
-        - https://scp-wiki.wikidot.com/scp-093
-        - https://scp-wiki.wikidot.com/scp-3000
-        - https://scp-wiki.wikidot.com/system:page-tags/tag/lore
+      - https://scp-wiki.wikidot.com/scp-173
+      - https://scp-wiki.wikidot.com/scp-087
+      - https://scp-wiki.wikidot.com/scp-682
+      - https://scp-wiki.wikidot.com/scp-093
+      - https://scp-wiki.wikidot.com/scp-3000
+      - https://scp-wiki.wikidot.com/system:page-tags/tag/lore
 
     dnd_wiki_homebrew:
       display_name: "D&D Wiki (Homebrew)"
@@ -293,10 +391,10 @@ sources:
       language: en
       tags: [fantasy, dnd, homebrew]
       urls:
-        - https://www.dandwiki.com/wiki/5e_Homebrew
-        - https://www.dandwiki.com/wiki/5e_Creatures
-        - https://www.dandwiki.com/wiki/5e_Deities
-        - https://www.dandwiki.com/wiki/5e_NPCs
+      - https://www.dandwiki.com/wiki/5e_Homebrew
+      - https://www.dandwiki.com/wiki/5e_Creatures
+      - https://www.dandwiki.com/wiki/5e_Deities
+      - https://www.dandwiki.com/wiki/5e_NPCs
 
     sly_flourish:
       display_name: "Sly Flourish (The Lazy DM)"
@@ -304,9 +402,9 @@ sources:
       language: en
       tags: [ttrpg, dm_advice, lore, dnd]
       urls:
-        - https://slyflourish.com/index.html
-        - https://slyflourish.com/lazy_dm_resource_document.html
-        - https://slyflourish.com/the_infinite_staircase.html
+      - https://slyflourish.com/index.html
+      - https://slyflourish.com/lazy_dm_resource_document.html
+      - https://slyflourish.com/the_infinite_staircase.html
 
     the_alexandrian:
       display_name: "The Alexandrian"
@@ -314,11 +412,72 @@ sources:
       language: en
       tags: [ttrpg, analysis, lore, worldbuilding]
       urls:
-        - https://thealexandrian.net/wordpress/43568/roleplaying-games/game-structures-addendum-how-to-prep-a-dungeon
-        - https://thealexandrian.net/wordpress/37903/roleplaying-games/advanced-node-based-design
-        - https://thealexandrian.net/wordpress/41243/roleplaying-games/between-the-stars-part-1-the-pacte-dallia
+      - https://thealexandrian.net/wordpress/43568/roleplaying-games/game-structures-addendum-how-to-prep-a-dungeon
+      - https://thealexandrian.net/wordpress/37903/roleplaying-games/advanced-node-based-design
+      - https://thealexandrian.net/wordpress/41243/roleplaying-games/between-the-stars-part-1-the-pacte-dallia
 
   # ---------- MULTILINGUAL LORE (NON-ENGLISH) ----------
+    scp_foundation_zh:
+      display_name: SCP Foundation (ZH)
+      extractor: generic
+      language: zh
+      tags:
+      - urban_fantasy
+      - horror
+      - zh
+      urls:
+      - https://scp-wiki-cn.wikidot.com/scp-173
+      - https://scp-wiki-cn.wikidot.com/scp-087
+    scp_foundation_jp:
+      display_name: SCP Foundation (JA)
+      extractor: generic
+      language: ja
+      tags:
+      - urban_fantasy
+      - horror
+      - ja
+      urls:
+      - https://scp-jp.wikidot.com/scp-173-jp
+    scp_foundation_ko:
+      display_name: SCP Foundation (KO)
+      extractor: generic
+      language: ko
+      tags:
+      - urban_fantasy
+      - horror
+      - ko
+      urls:
+      - https://scpko.wikidot.com/scp-173
+    scp_foundation_fr:
+      display_name: SCP Foundation (FR)
+      extractor: generic
+      language: fr
+      tags:
+      - urban_fantasy
+      - horror
+      - fr
+      urls:
+      - https://fondationscp.wikidot.com/scp-173
+    scp_foundation_de:
+      display_name: SCP Foundation (DE)
+      extractor: generic
+      language: de
+      tags:
+      - urban_fantasy
+      - horror
+      - de
+      urls:
+      - https://scp-wiki.de/scp-173
+    scp_foundation_es:
+      display_name: SCP Foundation (ES)
+      extractor: generic
+      language: es
+      tags:
+      - urban_fantasy
+      - horror
+      - es
+      urls:
+      - https://lafundacionscp.wikidot.com/scp-173
   multilingual_lore:
     moegirl_pedia:
       display_name: "萌娘百科 (Moegirlpedia)"
@@ -326,10 +485,10 @@ sources:
       language: zh
       tags: [anime, manga, game, zh]
       urls:
-        - https://zh.moegirl.org.cn/%E5%8E%9F%E7%A5%9E # Genshin Impact
-        - https://zh.moegirl.org.cn/%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F # Arknights
-        - https://zh.moegirl.org.cn/%E6%98%9F%E9%穹%E9%81%93%E9%93%81 # Honkai Star Rail
-        - https://zh.moegirl.org.cn/%E5%9C%A3%E6%9D%AF%E6%88%98%E4%BA%89 # Holy Grail War
+      - https://zh.moegirl.org.cn/%E5%8E%9F%E7%A5%9E   # Genshin Impact
+      - https://zh.moegirl.org.cn/%E6%98%8E%E6%97%A5%E6%96%B9%E8%88%9F   # Arknights
+      - https://zh.moegirl.org.cn/%E6%98%9F%E9%穹%E9%81%93%E9%93%81   # Honkai Star Rail
+      - https://zh.moegirl.org.cn/%E5%9C%A3%E6%9D%AF%E6%88%98%E4%BA%89   # Holy Grail War
 
     one_piece_cn:
       display_name: "航海王维基 (One Piece CN)"
@@ -337,8 +496,8 @@ sources:
       language: zh
       tags: [anime, adventure, shonen, zh]
       urls:
-        - https://onepiece.fandom.com/zh/wiki/%E8%B7%AF%E9%A3%9E
-        - https://onepiece.fandom.com/zh/wiki/%E6%81%B6%E9%AD%94%E6%9E%9C%E5%AE%9E
+      - https://onepiece.fandom.com/zh/wiki/%E8%B7%AF%E9%A3%9E
+      - https://onepiece.fandom.com/zh/wiki/%E6%81%B6%E9%AD%94%E6%9E%9C%E5%AE%9E
 
     harry_potter_es:
       display_name: "Harry Potter Wiki (ES)"
@@ -346,9 +505,9 @@ sources:
       language: es
       tags: [fantasy, magic, novel, es]
       urls:
-        - https://harrypotter.fandom.com/es/wiki/Hogwarts
-        - https://harrypotter.fandom.com/es/wiki/Magia
-        - https://harrypotter.fandom.com/es/wiki/Voldemort
+      - https://harrypotter.fandom.com/es/wiki/Hogwarts
+      - https://harrypotter.fandom.com/es/wiki/Magia
+      - https://harrypotter.fandom.com/es/wiki/Voldemort
 
     dragon_ball_es:
       display_name: "Dragon Ball Wiki (ES)"
@@ -356,9 +515,9 @@ sources:
       language: es
       tags: [anime, action, dragon_ball, es]
       urls:
-        - https://dragonball.fandom.com/es/wiki/Goku
-        - https://dragonball.fandom.com/es/wiki/Saiyan
-        - https://dragonball.fandom.com/es/wiki/Transformaciones
+      - https://dragonball.fandom.com/es/wiki/Goku
+      - https://dragonball.fandom.com/es/wiki/Saiyan
+      - https://dragonball.fandom.com/es/wiki/Transformaciones
 
     star_wars_fr:
       display_name: "Star Wars HoloNet (FR)"
@@ -366,9 +525,9 @@ sources:
       language: fr
       tags: [scifi, space_opera, star_wars, fr]
       urls:
-        - https://starwars.fandom.com/fr/wiki/La_Force
-        - https://starwars.fandom.com/fr/wiki/Jedi
-        - https://starwars.fandom.com/fr/wiki/Sabre_laser
+      - https://starwars.fandom.com/fr/wiki/La_Force
+      - https://starwars.fandom.com/fr/wiki/Jedi
+      - https://starwars.fandom.com/fr/wiki/Sabre_laser
 
     marvel_es:
       display_name: "Marvel Wiki (ES)"
@@ -376,9 +535,9 @@ sources:
       language: es
       tags: [comics, superheroes, marvel, es]
       urls:
-        - https://marvel.fandom.com/es/wiki/UCM
-        - https://marvel.fandom.com/es/wiki/Vengadores
-        - https://marvel.fandom.com/es/wiki/Spider-Man
+      - https://marvel.fandom.com/es/wiki/UCM
+      - https://marvel.fandom.com/es/wiki/Vengadores
+      - https://marvel.fandom.com/es/wiki/Spider-Man
 
     bilibili_wiki_genshin:
       display_name: "Bilibili Wiki (Genshin)"
@@ -386,11 +545,166 @@ sources:
       language: zh
       tags: [game, fantasy, zh]
       urls:
-        - https://wiki.biligame.com/ys/%E4%B8%96%E7%95%8C%E8%A7%82
-        - https://wiki.biligame.com/ys/%E8%92%99%E5%BE%B7
-        - https://wiki.biligame.com/ys/%E7%92%83%E6%9C%88
+      - https://wiki.biligame.com/ys/%E4%B8%96%E7%95%8C%E8%A7%82
+      - https://wiki.biligame.com/ys/%E8%92%99%E5%BE%B7
+      - https://wiki.biligame.com/ys/%E7%92%83%E6%9C%88
 
   # ---------- ADDITIONAL LORE SOURCES ----------
+    elder_scrolls_zh:
+      display_name: Elder Scrolls Wiki (ZH)
+      extractor: fandom
+      language: zh
+      tags:
+      - fantasy
+      - elder_scrolls
+      - zh
+      urls:
+      - https://elderscrolls.fandom.com/zh/wiki/Skyrim
+    elder_scrolls_es:
+      display_name: Elder Scrolls Wiki (ES)
+      extractor: fandom
+      language: es
+      tags:
+      - fantasy
+      - elder_scrolls
+      - es
+      urls:
+      - https://elderscrolls.fandom.com/es/wiki/Skyrim
+    elder_scrolls_de:
+      display_name: Elder Scrolls Wiki (DE)
+      extractor: fandom
+      language: de
+      tags:
+      - fantasy
+      - elder_scrolls
+      - de
+      urls:
+      - https://elderscrolls.fandom.com/de/wiki/Himmelsrand
+    elder_scrolls_fr:
+      display_name: Elder Scrolls Wiki (FR)
+      extractor: fandom
+      language: fr
+      tags:
+      - fantasy
+      - elder_scrolls
+      - fr
+      urls:
+      - https://elderscrolls.fandom.com/fr/wiki/Bordeciel
+    witcher_es:
+      display_name: The Witcher Wiki (ES)
+      extractor: fandom
+      language: es
+      tags:
+      - dark_fantasy
+      - witcher
+      - es
+      urls:
+      - https://witcher.fandom.com/es/wiki/Geralt_de_Rivia
+    witcher_fr:
+      display_name: The Witcher Wiki (FR)
+      extractor: fandom
+      language: fr
+      tags:
+      - dark_fantasy
+      - witcher
+      - fr
+      urls:
+      - https://sorceleur.fandom.com/fr/wiki/Geralt_de_Riv
+    witcher_de:
+      display_name: The Witcher Wiki (DE)
+      extractor: fandom
+      language: de
+      tags:
+      - dark_fantasy
+      - witcher
+      - de
+      urls:
+      - https://hexer.fandom.com/de/wiki/Geralt_von_Rivia
+    cyberpunk_es:
+      display_name: Cyberpunk Wiki (ES)
+      extractor: fandom
+      language: es
+      tags:
+      - cyberpunk
+      - scifi
+      - es
+      urls:
+      - https://cyberpunk.fandom.com/es/wiki/Night_City
+    cyberpunk_fr:
+      display_name: Cyberpunk Wiki (FR)
+      extractor: fandom
+      language: fr
+      tags:
+      - cyberpunk
+      - scifi
+      - fr
+      urls:
+      - https://cyberpunk.fandom.com/fr/wiki/Night_City
+    cyberpunk_de:
+      display_name: Cyberpunk Wiki (DE)
+      extractor: fandom
+      language: de
+      tags:
+      - cyberpunk
+      - scifi
+      - de
+      urls:
+      - https://cyberpunk.fandom.com/de/wiki/Night_City
+    genshin_impact_en:
+      display_name: Genshin Impact Wiki (EN)
+      extractor: fandom
+      language: en
+      tags:
+      - fantasy
+      - game
+      - genshin
+      urls:
+      - https://genshin-impact.fandom.com/wiki/Teyvat
+      - https://genshin-impact.fandom.com/wiki/Archon
+    genshin_impact_ja:
+      display_name: Genshin Impact Wiki (JA)
+      extractor: fandom
+      language: ja
+      tags:
+      - fantasy
+      - game
+      - genshin
+      - ja
+      urls:
+      - https://genshin-impact.fandom.com/ja/wiki/%E3%83%86%E3%82%A4%E3%83%AF%E3%83%83%E3%83%88
+    genshin_impact_es:
+      display_name: Genshin Impact Wiki (ES)
+      extractor: fandom
+      language: es
+      tags:
+      - fantasy
+      - game
+      - genshin
+      - es
+      urls:
+      - https://genshin-impact.fandom.com/es/wiki/Teyvat
+    honkai_star_rail_en:
+      display_name: Honkai Star Rail Wiki (EN)
+      extractor: fandom
+      language: en
+      tags:
+      - scifi
+      - game
+      - honkai
+      urls:
+      - https://honkai-star-rail.fandom.com/wiki/Aeon
+      - https://honkai-star-rail.fandom.com/wiki/Astral_Express
+    honkai_star_rail_zh:
+      display_name: Honkai Star Rail Wiki (ZH)
+      extractor: fandom
+      language: zh
+      tags:
+      - scifi
+      - game
+      - honkai
+      - zh
+      urls:
+      - https://honkai-star-rail.fandom.com/zh/wiki/%E6%98%9F%E7%A5%9E
   extra_lore:
     critical_role:
       display_name: "Critical Role (Exandria)"
@@ -398,12 +712,12 @@ sources:
       language: en
       tags: [fantasy, critical_role, exandria]
       urls:
-        - https://criticalrole.fandom.com/wiki/Exandria
-        - https://criticalrole.fandom.com/wiki/Wildemount
-        - https://criticalrole.fandom.com/wiki/Tal%27Dorei
-        - https://criticalrole.fandom.com/wiki/The_Calamity
-        - https://criticalrole.fandom.com/wiki/Vox_Machina
-        - https://criticalrole.fandom.com/wiki/Mighty_Nein
+      - https://criticalrole.fandom.com/wiki/Exandria
+      - https://criticalrole.fandom.com/wiki/Wildemount
+      - https://criticalrole.fandom.com/wiki/Tal%27Dorei
+      - https://criticalrole.fandom.com/wiki/The_Calamity
+      - https://criticalrole.fandom.com/wiki/Vox_Machina
+      - https://criticalrole.fandom.com/wiki/Mighty_Nein
 
     elder_scrolls:
       display_name: "Elder Scrolls Wiki"
@@ -411,11 +725,11 @@ sources:
       language: en
       tags: [fantasy, elder_scrolls, tamriel]
       urls:
-        - https://elderscrolls.fandom.com/wiki/Tamriel
-        - https://elderscrolls.fandom.com/wiki/Cyrodiil
-        - https://elderscrolls.fandom.com/wiki/Skyrim
-        - https://elderscrolls.fandom.com/wiki/Lore
-        - https://elderscrolls.fandom.com/wiki/Daedric_Princes
+      - https://elderscrolls.fandom.com/wiki/Tamriel
+      - https://elderscrolls.fandom.com/wiki/Cyrodiil
+      - https://elderscrolls.fandom.com/wiki/Skyrim
+      - https://elderscrolls.fandom.com/wiki/Lore
+      - https://elderscrolls.fandom.com/wiki/Daedric_Princes
 
     witcher:
       display_name: "The Witcher Wiki"
@@ -423,10 +737,10 @@ sources:
       language: en
       tags: [dark_fantasy, witcher]
       urls:
-        - https://witcher.fandom.com/wiki/The_Continent
-        - https://witcher.fandom.com/wiki/Geralt_of_Rivia
-        - https://witcher.fandom.com/wiki/Witcher_lore
-        - https://witcher.fandom.com/wiki/Monsters
+      - https://witcher.fandom.com/wiki/The_Continent
+      - https://witcher.fandom.com/wiki/Geralt_of_Rivia
+      - https://witcher.fandom.com/wiki/Witcher_lore
+      - https://witcher.fandom.com/wiki/Monsters
 
     cyberpunk:
       display_name: "Cyberpunk Wiki"
@@ -434,7 +748,137 @@ sources:
       language: en
       tags: [cyberpunk, scifi]
       urls:
-        - https://cyberpunk.fandom.com/wiki/Night_City
-        - https://cyberpunk.fandom.com/wiki/Cyberpunk_2020
-        - https://cyberpunk.fandom.com/wiki/Timeline
-        - https://cyberpunk.fandom.com/wiki/Arasaka
+      - https://cyberpunk.fandom.com/wiki/Night_City
+      - https://cyberpunk.fandom.com/wiki/Cyberpunk_2020
+      - https://cyberpunk.fandom.com/wiki/Timeline
+      - https://cyberpunk.fandom.com/wiki/Arasaka
+    fallout_en:
+      display_name: Fallout Wiki (EN)
+      extractor: fandom
+      language: en
+      tags:
+      - scifi
+      - post_apocalyptic
+      - fallout
+      urls:
+      - https://fallout.fandom.com/wiki/Vault_Boy
+    fallout_zh:
+      display_name: Fallout Wiki (ZH)
+      extractor: fandom
+      language: zh
+      tags:
+      - scifi
+      - post_apocalyptic
+      - fallout
+      - zh
+      urls:
+      - https://fallout.fandom.com/zh/wiki/%E8%BE%90%E5%B0%84%E7%B3%BB%E5%88%97
+    mass_effect_en:
+      display_name: Mass Effect Wiki (EN)
+      extractor: fandom
+      language: en
+      tags:
+      - scifi
+      - space_opera
+      - mass_effect
+      urls:
+      - https://masseffect.fandom.com/wiki/Commander_Shepard
+    mass_effect_es:
+      display_name: Mass Effect Wiki (ES)
+      extractor: fandom
+      language: es
+      tags:
+      - scifi
+      - space_opera
+      - mass_effect
+      - es
+      urls:
+      - https://masseffect.fandom.com/es/wiki/Comandante_Shepard
+    dragon_age_en:
+      display_name: Dragon Age Wiki (EN)
+      extractor: fandom
+      language: en
+      tags:
+      - dark_fantasy
+      - dragon_age
+      urls:
+      - https://dragonage.fandom.com/wiki/Thedas
+    warcraft_en:
+      display_name: Wowpedia (Warcraft EN)
+      extractor: fandom
+      language: en
+      tags:
+      - fantasy
+      - warcraft
+      urls:
+      - https://wowpedia.fandom.com/wiki/Azeroth
+      - https://wowpedia.fandom.com/wiki/Alliance
+    warcraft_fr:
+      display_name: Wowpedia (Warcraft FR)
+      extractor: fandom
+      language: fr
+      tags:
+      - fantasy
+      - warcraft
+      - fr
+      urls:
+      - https://wowpedia.fandom.com/fr/wiki/Azeroth
+    warcraft_de:
+      display_name: Wowpedia (Warcraft DE)
+      extractor: fandom
+      language: de
+      tags:
+      - fantasy
+      - warcraft
+      - de
+      urls:
+      - https://wowpedia.fandom.com/de/wiki/Azeroth
+    warcraft_es:
+      display_name: Wowpedia (Warcraft ES)
+      extractor: fandom
+      language: es
+      tags:
+      - fantasy
+      - warcraft
+      - es
+      urls:
+      - https://wowpedia.fandom.com/es/wiki/Azeroth
+    final_fantasy_en:
+      display_name: Final Fantasy Wiki (EN)
+      extractor: fandom
+      language: en
+      tags:
+      - fantasy
+      - final_fantasy
+      urls:
+      - https://finalfantasy.fandom.com/wiki/Final_Fantasy_VII
+    final_fantasy_ja:
+      display_name: Final Fantasy Wiki (JA)
+      extractor: fandom
+      language: ja
+      tags:
+      - fantasy
+      - final_fantasy
+      - ja
+      urls:
+      - https://finalfantasy.fandom.com/ja/wiki/%E3%83%95%E3%82%A1%E3%82%A4%E3%83%8A%E3%83%AB%E3%83%95%E3%82%A1%E3%83%B3%E3%82%BF%E3%82%B8%E3%83%BCVII
+    zelda_en:
+      display_name: Zelda Wiki (EN)
+      extractor: fandom
+      language: en
+      tags:
+      - fantasy
+      - zelda
+      urls:
+      - https://zelda.fandom.com/wiki/Hyrule
+      - https://zelda.fandom.com/wiki/Triforce
+    zelda_es:
+      display_name: Zelda Wiki (ES)
+      extractor: fandom
+      language: es
+      tags:
+      - fantasy
+      - zelda
+      - es
+      urls:
+      - https://zelda.fandom.com/es/wiki/Hyrule
