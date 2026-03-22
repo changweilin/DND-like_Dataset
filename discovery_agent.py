@@ -1,3 +1,4 @@
+import sys
 import yaml
 import requests
 import cloudscraper
@@ -5,6 +6,17 @@ from bs4 import BeautifulSoup
 from ruamel.yaml import YAML
 import time
 import urllib.parse
+from pathlib import Path
+
+# ── API 用量追蹤 ───────────────────────────────────────────────────────────────
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from api_tracker import check_quota, record_call as _record_api
+    _API_TRACKER = True
+except ImportError:
+    _API_TRACKER = False
+    def check_quota(api, **kw): return True
+    def _record_api(api): pass
 
 CONFIG_PATH = r"c:\Users\user\Documents\Python\DND-like_Dataset\scraper_config.yaml"
 
@@ -74,6 +86,10 @@ class DiscoveryAgent:
         }
 
         try:
+            if not check_quota("google-custom-search", raise_on_exceed=False):
+                print("[!] Google Custom Search 今日配額已滿 (100/day)，跳過搜尋。")
+                return []
+            _record_api("google-custom-search")
             print(f"[*] 正在透過 Google API 搜尋關鍵字: {keyword}")
             response = requests.get(api_url, params=params, timeout=10)
             response.raise_for_status()

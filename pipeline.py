@@ -15,6 +15,8 @@ Usage:
     python pipeline.py --export           # also run export_hf.py at the end
     python pipeline.py --postprocess      # run postprocess_rl.py after validate
     python pipeline.py --transfer         # run transfer_datasets.py (asks for confirmation)
+    python pipeline.py --transfer --yes   # run transfer_datasets.py without confirmation
+    python pipeline.py --transfer --prepare --yes  # transfer + run DND-like_Model/prepare.py
     python pipeline.py --category trpg   # limit scrape+build to trpg category
     python pipeline.py --fresh            # pass --fresh to build_dataset.py
     python pipeline.py --dry-run          # dry-run all steps (no writes)
@@ -127,6 +129,12 @@ def _transfer_cmd(args: argparse.Namespace) -> list[str]:
     return cmd
 
 
+def _prepare_cmd(args: argparse.Namespace) -> list[str]:
+    model_root = pathlib.Path(__file__).parent.parent / "DND-like_Model"
+    prepare_script = model_root / "prepare.py"
+    return [sys.executable, str(prepare_script)]
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -187,6 +195,14 @@ def main() -> None:
         "--transfer", action="store_true",
         help="Run transfer_datasets.py as the final step (asks for confirmation).",
     )
+    parser.add_argument(
+        "--yes", "-y", action="store_true",
+        help="Skip confirmation prompts (auto-confirm transfer step).",
+    )
+    parser.add_argument(
+        "--prepare", action="store_true",
+        help="Run DND-like_Model/prepare.py after transfer (format convert + train/val split + validate).",
+    )
     args = parser.parse_args()
 
     results: dict[str, int] = {}
@@ -218,12 +234,21 @@ def main() -> None:
 
     # Step 6 (optional): Transfer
     if args.transfer:
-        print("\n" + "=" * 60)
-        print("CONFIRMATION REQUIRED")
-        print("=" * 60)
-        yn = input("Do you want to run transfer_datasets.py to sync data to the model project? (y/n): ")
-        if yn.lower() in ["y", "yes"]:
+        if args.yes:
+            log.info("--yes: 跳過確認，直接執行搬移。")
+            do_transfer = True
+        else:
+            print("\n" + "=" * 60)
+            print("CONFIRMATION REQUIRED")
+            print("=" * 60)
+            yn = input("Do you want to run transfer_datasets.py to sync data to the model project? (y/n): ")
+            do_transfer = yn.lower() in ["y", "yes"]
+
+        if do_transfer:
             results["transfer"] = run_step(_transfer_cmd(args), "transfer", args.fail_fast)
+            # Step 7 (optional): Prepare — only runs after a successful transfer
+            if args.prepare and results.get("transfer", 1) == 0:
+                results["prepare"] = run_step(_prepare_cmd(args), "prepare", args.fail_fast)
         else:
             log.info("Transfer step skipped by user.")
 
