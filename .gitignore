@@ -4,3 +4,11 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+*.log
+
+# 資料檔案（防止散落在 data/ 外的原始資料被 commit）
+*.jsonl
+*.parquet
+*.csv
+*.arrow
+*.json.gz
